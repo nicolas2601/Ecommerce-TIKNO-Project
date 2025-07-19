@@ -98,13 +98,15 @@ DATABASES = {
     }
 }
 
-# Configuración alternativa con SQLite para desarrollo local
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+# Configuración especial para tests - usar SQLite para evitar conflictos
+import sys
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    }
+
+
 
 
 # Password validation
