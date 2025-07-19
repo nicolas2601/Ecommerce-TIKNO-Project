@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Cart, CartItem, Order, OrderItem
 from products.models import Product
 from products.serializers import ProductSerializer
+from core.validators import validate_stock_availability
+from core.exceptions import InsufficientStockException
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -36,7 +38,9 @@ class CartItemSerializer(serializers.ModelSerializer):
             product = Product.objects.get(id=attrs['product_id'])
             quantity = attrs.get('quantity', 1)
             
-            if quantity > product.stock:
+            try:
+                validate_stock_availability(product, quantity)
+            except Exception as e:
                 raise serializers.ValidationError(
                     f"Stock insuficiente. Stock disponible: {product.stock}"
                 )
@@ -78,7 +82,9 @@ class AddToCartSerializer(serializers.Serializer):
         product = Product.objects.get(id=attrs['product_id'])
         quantity = attrs['quantity']
         
-        if quantity > product.stock:
+        try:
+            validate_stock_availability(product, quantity)
+        except Exception as e:
             raise serializers.ValidationError(
                 f"Stock insuficiente. Stock disponible: {product.stock}"
             )
@@ -143,7 +149,9 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         
         # Verificar stock de todos los productos
         for item in cart.items.all():
-            if item.quantity > item.product.stock:
+            try:
+                validate_stock_availability(item.product, item.quantity)
+            except Exception as e:
                 raise serializers.ValidationError(
                     f"Stock insuficiente para {item.product.name}. "
                     f"Stock disponible: {item.product.stock}"

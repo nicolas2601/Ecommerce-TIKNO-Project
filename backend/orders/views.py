@@ -5,6 +5,9 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from .models import Cart, CartItem, Order, OrderItem
+from core.permissions import IsOwnerOrReadOnly, IsOwnerOrAdmin
+from core.validators import validate_stock_availability
+from core.exceptions import InsufficientStockException
 from .serializers import (
     CartSerializer, CartItemSerializer, AddToCartSerializer,
     OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer
@@ -52,13 +55,18 @@ class CartViewSet(viewsets.ModelViewSet):
             if not created:
                 # Si ya existe, actualizar la cantidad
                 new_quantity = cart_item.quantity + quantity
-                if new_quantity > product.stock:
-                    return Response(
-                        {'error': f'Stock insuficiente. Stock disponible: {product.stock}'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                try:
+                    validate_stock_availability(product, new_quantity)
+                except Exception as e:
+                    raise InsufficientStockException(product.stock, new_quantity)
                 cart_item.quantity = new_quantity
                 cart_item.save()
+            else:
+                # Validar stock para nuevo item
+                try:
+                    validate_stock_availability(product, quantity)
+                except Exception as e:
+                    raise InsufficientStockException(product.stock, quantity)
             
             cart_serializer = CartSerializer(cart)
             return Response(cart_serializer.data, status=status.HTTP_200_OK)
@@ -84,11 +92,10 @@ class CartViewSet(viewsets.ModelViewSet):
             if quantity <= 0:
                 cart_item.delete()
             else:
-                if quantity > cart_item.product.stock:
-                    return Response(
-                        {'error': f'Stock insuficiente. Stock disponible: {cart_item.product.stock}'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                try:
+                    validate_stock_availability(cart_item.product, quantity)
+                except Exception as e:
+                    raise InsufficientStockException(cart_item.product.stock, quantity)
                 cart_item.quantity = quantity
                 cart_item.save()
             

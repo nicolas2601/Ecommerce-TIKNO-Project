@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from .models import Category, Product, ProductImage
+from core.permissions import IsAdminOrReadOnly
 from .serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -24,12 +25,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
     
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            permission_classes = [permissions.IsAdminUser]
-        else:
-            permission_classes = [permissions.AllowAny]
-        return [permission() for permission in permission_classes]
+    permission_classes = [IsAdminOrReadOnly]
     
     @action(detail=True, methods=['get'])
     def products(self, request, slug=None):
@@ -79,12 +75,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductCreateSerializer
         return ProductSerializer
     
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            permission_classes = [permissions.IsAdminUser]
-        else:
-            permission_classes = [permissions.AllowAny]
-        return [permission() for permission in permission_classes]
+    permission_classes = [IsAdminOrReadOnly]
     
     def get_queryset(self):
         queryset = super().get_queryset()

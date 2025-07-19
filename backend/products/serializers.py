@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Category, Product, ProductImage
 from core.services import storage_service
+from core.validators import validate_positive_price, validate_non_negative_stock, validate_image_file
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -68,13 +69,11 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         ]
     
     def validate_price(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("El precio debe ser mayor a 0")
+        validate_positive_price(value)
         return value
     
     def validate_stock(self, value):
-        if value < 0:
-            raise serializers.ValidationError("El stock no puede ser negativo")
+        validate_non_negative_stock(value)
         return value
 
 
@@ -84,10 +83,7 @@ class ImageUploadSerializer(serializers.Serializer):
     folder = serializers.CharField(max_length=50, default='products')
     
     def validate_image(self, value):
-        try:
-            storage_service.validate_image(value)
-        except Exception as e:
-            raise serializers.ValidationError(str(e))
+        validate_image_file(value)
         return value
     
     def create(self, validated_data):
