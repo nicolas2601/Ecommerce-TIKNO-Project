@@ -3,6 +3,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+import json
 from .models import User
 from .serializers import (
     UserSerializer, 
@@ -124,3 +128,105 @@ class ChangePasswordView(generics.GenericAPIView):
         return Response({
             'message': 'Contraseña cambiada exitosamente.'
         }, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def supabase_webhook(request):
+    """
+    Webhook para sincronizar usuarios de Supabase con Django
+    """
+    try:
+        data = json.loads(request.body)
+        
+        # Verificar que es un evento de registro de usuario
+        if data.get('type') == 'INSERT' and data.get('table') == 'auth.users':
+            record = data.get('record', {})
+            
+            email = record.get('email')
+            user_metadata = record.get('user_metadata', {})
+            
+            if email:
+                # Verificar si el usuario ya existe
+                if not User.objects.filter(email=email).exists():
+                    # Crear usuario en Django
+                    user = User.objects.create_user(
+                        email=email,
+                        first_name=user_metadata.get('first_name', ''),
+                        last_name=user_metadata.get('last_name', ''),
+                        phone=user_metadata.get('phone', ''),
+                        is_active=True
+                    )
+                    
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': f'Usuario {email} sincronizado exitosamente',
+                        'user_id': user.id
+                    })
+                else:
+                    return JsonResponse({
+                        'status': 'info',
+                        'message': f'Usuario {email} ya existe'
+                    })
+        
+        return JsonResponse({
+            'status': 'ignored',
+            'message': 'Evento no procesado'
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'JSON inválido'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def sync_supabase_user(request):
+    """
+    Endpoint para sincronizar manualmente un usuario de Supabase
+    """
+    try:
+        email = request.data.get('email')
+        first_name = request.data.get('first_name', '')
+        last_name = request.data.get('last_name', '')
+        phone = request.data.get('phone', '')
+        
+        if not email:
+            return Response({
+                'error': 'Email es requerido'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar si el usuario ya existe
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': first_name,
+                'last_name': last_name,
+                'phone': phone,
+                'is_active': True
+            }
+        )
+        
+        if created:
+            return Response({
+                'message': f'Usuario {email} creado exitosamente',
+                'user': UserSerializer(user).data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                'message': f'Usuario {email} ya existe',
+                'user': UserSerializer(user).data
+            }, status=status.HTTP_200_OK)
+            
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

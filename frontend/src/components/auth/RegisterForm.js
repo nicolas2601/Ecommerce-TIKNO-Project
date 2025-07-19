@@ -36,8 +36,8 @@ const RegisterForm = () => {
 
     try {
       const { error } = await signUp(data.email, data.password, {
-        first_name: data.firstName,
-        last_name: data.lastName
+        firstName: data.firstName,
+        lastName: data.lastName
       })
 
       if (error) {

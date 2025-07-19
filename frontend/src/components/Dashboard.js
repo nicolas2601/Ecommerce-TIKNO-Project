@@ -21,7 +21,7 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">E-commerce Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Hola, {user?.user_metadata?.first_name || user?.email}</span>
+              <span className="text-gray-700">Hola, {user?.first_name || user?.email}</span>
               <button
                 onClick={handleSignOut}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -132,13 +132,13 @@ const Dashboard = () => {
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">Nombre</dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {user?.user_metadata?.first_name} {user?.user_metadata?.last_name}
+                      {user?.first_name} {user?.last_name}
                     </dd>
                   </div>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">Fecha de registro</dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {new Date(user?.created_at).toLocaleDateString('es-ES')}
+                      {user?.date_joined ? new Date(user.date_joined).toLocaleDateString('es-ES') : 'No disponible'}
                     </dd>
                   </div>
                 </dl>

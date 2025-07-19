@@ -7,7 +7,9 @@ from .views import (
     logout_view,
     PasswordResetView,
     PasswordResetConfirmView,
-    ChangePasswordView
+    ChangePasswordView,
+    supabase_webhook,
+    sync_supabase_user
 )
 
 app_name = 'accounts'
@@ -21,4 +23,7 @@ urlpatterns = [
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password/change/', ChangePasswordView.as_view(), name='change_password'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Endpoints de sincronización con Supabase
+    path('supabase/webhook/', supabase_webhook, name='supabase_webhook'),
+    path('supabase/sync/', sync_supabase_user, name='sync_supabase_user'),
 ]
