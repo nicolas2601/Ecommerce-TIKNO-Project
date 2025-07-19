@@ -21,7 +21,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price', 'stock', 'is_active', 'is_featured', 'created_at')
     list_filter = ('category', 'is_active', 'is_featured', 'created_at')
-    search_fields = ('name', 'description', 'sku')
+    search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('-created_at',)
     inlines = [ProductImageInline]
@@ -31,13 +31,13 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'slug', 'category', 'description')
         }),
         ('Precio y Stock', {
-            'fields': ('price', 'stock', 'sku')
+            'fields': ('price', 'stock')
         }),
         ('Configuración', {
             'fields': ('is_active', 'is_featured')
         }),
         ('Imágenes', {
-            'fields': ('main_image_url', 'thumbnail_url')
+            'fields': ('main_image_url',)
         }),
     )
 
