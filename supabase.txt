@@ -1,0 +1,521 @@
+# Flujo de Trabajo Completo - Ecommerce React + Django
+
+## 📋 Estructura del Proyecto
+
+```
+ecommerce-project/
+├── frontend/           # React + Tailwind + Framer Motion + PNPM
+├── backend/            # Django + DRF + Supabase
+├── requirements.txt    # Dependencias Python
+└── README.md
+```
+
+## 🛠️ FASE 1: Configuración Inicial del Backend Django
+
+### 1.1 Crear proyecto Django
+- Crear carpeta `backend`
+- Instalar Python virtual environment
+- Instalar Django y Django REST Framework
+- Crear proyecto Django: `django-admin startproject ecommerce_backend`
+- Instalar dependencias: `djangorestframework`, `django-cors-headers`, `psycopg2-binary`, `python-decouple`, `djangorestframework-simplejwt`, `Pillow`
+
+### 1.2 Configurar conexión a Supabase
+- Configurar PostgreSQL en `settings.py` con credenciales de Supabase
+- Instalar dependencias adicionales: `supabase`, `python-decouple`
+- Crear archivo `.env` con DATABASE_URL, SECRET_KEY, DEBUG, SUPABASE_URL, SUPABASE_KEY
+- Configurar cliente de Supabase para Storage
+- Configurar CORS para permitir requests del frontend React
+- Crear bucket público "productos" en Supabase Storage (si no existe)
+
+### 1.3 Configurar Django REST Framework
+- Agregar DRF a INSTALLED_APPS
+- Configurar autenticación JWT con `rest_framework_simplejwt`
+- Configurar permisos por defecto
+- Configurar pagination global
+- Configurar formato de respuesta JSON
+
+### 1.4 Crear aplicaciones Django
+- Crear app `accounts` para usuarios y autenticación
+- Crear app `products` para productos y categorías
+- Crear app `orders` para carrito y órdenes
+- Crear app `core` para configuraciones generales
+
+## 🔐 FASE 2: Sistema de Autenticación
+
+### 2.1 Modelo de Usuario personalizado
+- Crear modelo User personalizado en `accounts/models.py`
+- Campos: email, first_name, last_name, phone, is_active, is_staff, date_joined
+- Usar email como USERNAME_FIELD en lugar de username
+- Crear UserManager personalizado
+
+### 2.2 Serializers de autenticación
+- Crear UserSerializer para datos de usuario
+- Crear RegisterSerializer con validación de contraseñas
+- Crear LoginSerializer para credenciales
+- Crear UserProfileSerializer para perfil completo
+
+### 2.3 Views de autenticación
+- Crear RegisterView para registro de usuarios
+- Crear LoginView que retorna tokens JWT
+- Crear UserProfileView para obtener/actualizar perfil
+- Crear LogoutView para invalidar tokens (opcional)
+- Crear PasswordResetView para recuperar contraseña
+
+### 2.4 URLs de autenticación
+- Configurar rutas en `accounts/urls.py`
+- Endpoints: `/api/auth/register/`, `/api/auth/login/`, `/api/auth/profile/`
+- Incluir rutas de JWT refresh token
+
+## 📦 FASE 3: Modelos de Ecommerce
+
+### 3.1 Modelos de productos
+- Crear modelo Category con campos: name, slug, description, image_url (URL de Supabase Storage), is_active
+- Crear modelo Product con campos: name, slug, description, price, stock, category, main_image_url, created_at, updated_at
+- Crear modelo ProductImage para múltiples imágenes: product, image_url, alt_text, is_main, order
+- Todas las URLs de imágenes apuntan al bucket "productos" en Supabase Storage
+- Implementar métodos `__str__` y `get_absolute_url`
+- Agregar método `get_full_image_url()` para construir URLs completas
+
+### 3.2 Modelos de carrito y órdenes
+- Crear modelo Cart vinculado a User
+- Crear modelo CartItem con product, quantity, price
+- Crear modelo Order con user, total, status, shipping_address, created_at
+- Crear modelo OrderItem similar a CartItem pero para órdenes
+- Definir choices para status de orden (pending, processing, shipped, delivered, cancelled)
+
+### 3.3 Migraciones
+- Ejecutar `python manage.py makemigrations` para cada app
+- Ejecutar `python manage.py migrate` para crear tablas en Supabase
+- Crear datos iniciales con fixtures o comandos personalizados
+
+## 📸 FASE 4: Gestión de Imágenes con Supabase Storage
+
+### 4.1 Configurar Supabase Storage en Django
+- Crear servicio `SupabaseStorageService` en `core/services.py`
+- Implementar métodos: `upload_image()`, `delete_image()`, `get_public_url()`
+- Configurar nombres únicos para archivos (UUID + timestamp)
+- Configurar validación de tipos de archivo (jpg, png, webp)
+- Configurar límites de tamaño de archivo
+
+### 4.2 Upload de imágenes en API
+- Crear endpoint `/api/products/upload-image/` para subir imágenes
+- Validar archivos antes de subir a Supabase
+- Retornar URL pública de la imagen subida
+- Implementar manejo de errores de upload
+- Crear endpoint para eliminar imágenes huérfanas
+
+### 4.3 Gestión de imágenes en admin
+- Crear view para upload múltiple de imágenes
+- Implementar preview de imágenes antes de guardar
+- Crear funcionalidad para reordenar imágenes
+- Implementar eliminación de imágenes con confirmación
+- Crear thumbnail automático para admin
+
+### 4.4 Optimización de imágenes
+- Implementar compresión automática antes de subir
+- Crear diferentes tamaños: thumbnail, medium, large
+- Configurar lazy loading para imágenes grandes
+- Implementar cache de URLs de imágenes
+
+### 5.1 Serializers para productos
+- Crear CategorySerializer con image_url completa
+- Crear ProductSerializer con main_image_url y lista de imágenes
+- Crear ProductImageSerializer para gestión individual de imágenes
+- Crear ProductDetailSerializer con todas las imágenes ordenadas
+- Crear ProductCreateSerializer para admin con upload de imágenes
+
+### 5.2 ViewSets y Views
+- Crear CategoryViewSet con operaciones CRUD e imágenes
+- Crear ProductViewSet con filtros, búsqueda, paginación e imágenes
+- Crear ProductImageViewSet para gestión de imágenes individuales
+- Implementar filtros por categoría, precio, disponibilidad
+- Crear custom actions para productos destacados, ofertas
+- Agregar endpoint para upload masivo de imágenes
+
+### 5.3 Carrito API
+- Crear CartSerializer y CartItemSerializer con imágenes de productos
+- Crear CartViewSet para gestionar carrito del usuario
+- Endpoints para agregar/quitar productos del carrito
+- Endpoint para obtener carrito actual con imágenes y calcular totales
+
+### 5.4 Órdenes API
+- Crear OrderSerializer y OrderItemSerializer con imágenes
+- Crear OrderViewSet para gestionar órdenes
+- Endpoint para crear orden desde carrito
+- Endpoints para historial de órdenes del usuario con imágenes
+
+## 🔧 FASE 5: API REST con Django REST Framework
+
+### 5.1 Permisos personalizados
+- Crear IsOwnerOrReadOnly para que usuarios solo editen sus datos
+- Crear IsAdminOrReadOnly para operaciones de admin
+- Configurar permisos por ViewSet
+
+### 6.2 Validaciones
+- Validar stock disponible al agregar al carrito
+- Validar datos de productos (precios positivos, stock no negativo)
+- Validar formato de email y contraseñas seguras
+- Validar únicos slugs para productos y categorías
+- Validar tipos y tamaños de archivos de imagen
+- Validar URLs de imágenes antes de guardar en BD
+
+### 5.3 Manejo de errores
+- Crear custom exception handler
+- Responses consistentes para errores 400, 401, 403, 404, 500
+- Logging de errores críticos
+
+## 🛡️ FASE 6: Permisos y Validaciones
+
+## 🎨 FASE 7: Configuración del Frontend React
+
+### 7.1 Crear proyecto React
+- Crear carpeta `frontend`
+- Instalar React con TypeScript: `npx create-react-app frontend --template typescript`
+- Instalar dependencias: `tailwindcss`, `framer-motion`, `axios`, `react-router-dom`, `@types/react-router-dom`
+- Instalar dependencias adicionales: `react-dropzone`, `react-image-crop`, `react-lazy-load-image-component`
+
+### 7.2 Configurar Tailwind CSS
+- Instalar y configurar Tailwind CSS
+- Configurar archivo `tailwind.config.js` con tema personalizado
+- Configurar colores, fuentes y breakpoints del ecommerce
+- Crear clases utilitarias personalizadas
+- Agregar configuraciones específicas para galería de imágenes
+
+### 7.3 Configurar Framer Motion
+- Instalar framer-motion
+- Crear componentes base con animaciones: FadeIn, SlideIn, ScaleIn, ImageReveal
+- Configurar variants globales para animaciones consistentes
+- Crear AnimatedLayout para transiciones entre páginas
+- Crear animaciones específicas para galería de imágenes
+
+### 7.4 Configurar routing
+- Configurar React Router con rutas principales
+- Crear ProtectedRoute component para rutas que requieren autenticación
+- Configurar rutas: `/`, `/products`, `/product/:id`, `/cart`, `/checkout`, `/profile`, `/orders`
+- Agregar rutas para admin con gestión de imágenes
+
+## 🔌 FASE 8: Estado Global y HTTP Client
+
+### 8.1 Context API para estado global
+- Crear AuthContext para manejo de autenticación
+- Crear CartContext para estado del carrito
+- Crear ProductContext para productos y filtros
+- Crear ImageContext para gestión de imágenes y uploads
+- Implementar useContext hooks personalizados
+
+### 8.2 Configurar Axios
+- Crear instancia de Axios con baseURL del backend
+- Configurar interceptors para agregar JWT tokens automáticamente
+- Configurar interceptor de respuesta para manejar errores 401
+- Crear funciones helper para diferentes tipos de requests
+- Crear funciones específicas para upload de imágenes
+
+### 8.3 Custom hooks
+- Crear useAuth hook para login, logout, register
+- Crear useProducts hook para obtener productos, filtrar, buscar
+- Crear useCart hook para gestionar carrito
+- Crear useOrders hook para órdenes del usuario
+- Crear useImageUpload hook para subir imágenes a Supabase
+- Crear useImageGallery hook para gestión de galerías
+
+## 🖼️ FASE 9: Componentes del Frontend
+
+### 9.1 Componentes base con animaciones
+- Layout principal con header, navbar, footer animados
+- Button component con hover y click animations
+- Input component con focus animations
+- Modal component con backdrop y slide animations
+- Card component para productos con hover effects
+- ImageUpload component con drag & drop y preview
+- ImageGallery component con lightbox y navegación
+
+### 9.2 Componentes de gestión de imágenes
+- ImageDropzone para subir imágenes con drag & drop
+- ImagePreview con crop y resize básico
+- ImageCarousel para múltiples imágenes con navegación
+- ImageLightbox para vista ampliada con zoom
+- ImageUploadProgress con barra de progreso animada
+- ImageManager para admin con reordenamiento
+
+### 9.3 Componentes de autenticación
+- LoginForm con validación y animaciones de error
+- RegisterForm con pasos animados
+- UserProfile con edición inline
+- ProtectedRoute con loading states animados
+
+### 9.4 Componentes de productos
+- ProductCard con imagen principal, precio, animaciones hover
+- ProductList con grid responsivo y filtros animados
+- ProductDetail con galería de imágenes interactiva y animaciones
+- ProductImageGallery con thumbnails y vista principal
+- SearchBar con sugerencias animadas
+- CategoryFilter con checkboxes animados
+
+### 9.5 Componentes de carrito
+- CartIcon con badge animado del contador
+- CartItem con imagen del producto y animaciones de agregar/quitar
+- CartSidebar que desliza desde la derecha
+- CheckoutForm con pasos animados
+- OrderSummary con imágenes y totales animados
+
+## 🎯 FASE 10: Páginas Principales
+
+### 10.1 Página de inicio
+- Hero section con animaciones llamativas e imagen de fondo
+- Productos destacados con carousel animado e imágenes
+- Categorías con hover effects e imágenes representativas
+- Testimonios con fade in animations y avatares
+
+### 10.2 Catálogo de productos
+- Grid de productos con lazy loading de imágenes
+- Filtros laterales con animaciones
+- Paginación con transiciones suaves
+- Búsqueda con resultados animados y preview de imágenes
+
+### 10.3 Página de producto
+- Galería de imágenes principal con zoom y thumbnails
+- Navegación entre imágenes con animaciones fluidas
+- Información del producto con reveal animations
+- Botón agregar al carrito con feedback animado
+- Productos relacionados con carousel e imágenes
+
+### 10.4 Carrito y checkout
+- Resumen del carrito con imágenes de productos y animaciones
+- Formulario de checkout con validación animada
+- Pasos del proceso con progress bar animado
+- Página de confirmación con celebración e imágenes de productos
+
+## 🚀 FASE 11: Funcionalidades Avanzadas
+
+### 11.1 Panel de administración
+- Dashboard con estadísticas y gráficos
+- CRUD de productos con drag & drop para múltiples imágenes
+- Gestor de imágenes con preview, crop y resize
+- Upload masivo de imágenes con progress bar
+- Gestión de órdenes con cambios de estado
+- Gestión de usuarios con roles
+- Galería de imágenes organizadas por categorías
+
+### 11.2 Mejoras de UX con imágenes
+- Loading skeletons animados para imágenes
+- Progressive image loading (blur to sharp)
+- Image lazy loading con intersection observer
+- Notificaciones toast con framer-motion
+- Confirmaciones con modales animados
+- Breadcrumbs con transiciones
+- Image error fallbacks con placeholders
+
+### 11.3 Optimizaciones de imágenes
+- Lazy loading de imágenes con intersection observer
+- WebP conversion automática
+- Responsive images con diferentes tamaños
+- Image preloading para navegación más fluida
+- Virtual scrolling para galerías grandes
+- Memoización de componentes de imágenes pesados
+- Cache de imágenes en cliente
+
+## 🔧 FASE 12: Configuraciones de Producción
+
+### 11.1 Backend Django
+- Configurar ALLOWED_HOSTS para producción
+- Configurar static files y media files
+- Configurar CORS_ALLOWED_ORIGINS
+- Configurar logging para producción
+- Configurar cache con Redis (opcional)
+
+### 11.2 Frontend React
+- Configurar build de producción
+- Configurar variables de entorno
+- Optimizar bundle size con code splitting
+- Configurar PWA (opcional)
+
+### 11.3 Seguridad
+- Configurar HTTPS en producción
+- Validar y sanitizar todas las entradas
+- Implementar rate limiting en Django
+- Configurar CSP headers
+
+## 📝 FASE 13: Testing y Documentación
+
+### 12.1 Testing backend
+- Tests unitarios para models y serializers
+- Tests de integración para APIs
+- Tests de autenticación y permisos
+- Coverage report
+
+### 12.2 Testing frontend
+- Tests unitarios para componentes
+- Tests de integración para flujos principales
+- Tests E2E con Cypress (opcional)
+- Tests de accesibilidad
+
+### 12.3 Documentación
+- Documentación de API con DRF browsable API
+- README completo con instrucciones
+- Documentación de componentes React
+- Guía de despliegue
+
+## 🔧 Configuraciones Específicas
+
+### Backend - settings.py
+```python
+# Configuración de Supabase
+SUPABASE_URL = config('SUPABASE_URL')
+SUPABASE_KEY = config('SUPABASE_KEY')
+SUPABASE_BUCKET = 'productos'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': '5432',
+    }
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://yourdomain.com",
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
+}
+
+# Configuración de archivos
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+```
+
+### SupabaseStorageService
+```python
+from supabase import create_client, Client
+import uuid
+from django.conf import settings
+
+class SupabaseStorageService:
+    def __init__(self):
+        self.client: Client = create_client(
+            settings.SUPABASE_URL, 
+            settings.SUPABASE_KEY
+        )
+        self.bucket = settings.SUPABASE_BUCKET
+    
+    def upload_image(self, file, folder='products'):
+        file_name = f"{folder}/{uuid.uuid4()}-{file.name}"
+        response = self.client.storage.from_(self.bucket).upload(
+            file_name, file.read()
+        )
+        return self.get_public_url(file_name)
+    
+    def get_public_url(self, file_path):
+        return self.client.storage.from_(self.bucket).get_public_url(file_path)
+    
+    def delete_image(self, file_path):
+        return self.client.storage.from_(self.bucket).remove([file_path])
+```
+
+### Frontend - ImageUpload Component
+```typescript
+// Hook para subir imágenes
+const useImageUpload = () => {
+  const uploadImage = async (file: File, folder: string = 'products') => {
+    const formData = new FormData()
+    formData.append('image', file)
+    formData.append('folder', folder)
+    
+    const response = await axiosInstance.post('/products/upload-image/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    
+    return response.data.url
+  }
+  
+  return { uploadImage }
+}
+
+// Componente de upload con drag & drop
+const ImageDropzone = ({ onImageUpload, multiple = false }) => {
+  const { uploadImage } = useImageUpload()
+  
+  const handleDrop = async (files: File[]) => {
+    const urls = await Promise.all(
+      files.map(file => uploadImage(file))
+    )
+    onImageUpload(multiple ? urls : urls[0])
+  }
+  
+  return (
+    <div className="border-dashed border-2 p-8 text-center">
+      {/* Implementar drag & drop con react-dropzone */}
+    </div>
+  )
+}
+```
+
+## 🎯 Orden de Implementación Recomendado
+
+1. **Semana 1**: Backend Django + Modelos + Supabase Storage + API básica de imágenes
+2. **Semana 2**: Frontend React + Componentes de imágenes + Upload básico
+3. **Semana 3**: API completa de productos + Galería frontend + Gestión de imágenes
+4. **Semana 4**: Carrito + Órdenes + Checkout + Optimizaciones de imágenes
+5. **Semana 5**: Panel admin + Gestión avanzada de imágenes + Testing
+6. **Semana 6**: Documentación + Despliegue + Optimizaciones finales
+
+## 🚀 Ventajas de esta Stack con Supabase Storage
+
+**Supabase Storage:**
+- Almacenamiento escalable y rápido
+- URLs públicas automáticas
+- Integración nativa con PostgreSQL
+- Políticas de acceso granulares
+- CDN global integrado
+
+**Gestión de Imágenes:**
+- Upload directo desde React
+- Múltiples formatos soportados
+- Compresión automática
+- Lazy loading optimizado
+- Galería interactiva con animaciones
+
+**Performance:**
+- Carga rápida de imágenes
+- Cache automático
+- Responsive images
+- Progressive loading
+- Optimización automática
+
+**Características específicas del bucket "productos":**
+- Bucket público para acceso directo
+- Organización por carpetas (categories, products, thumbnails)
+- Políticas de upload solo para usuarios autenticados
+- Eliminación automática de imágenes huérfanas
+- Backup automático incluido en Supabasetes finales
+
+## 🚀 Ventajas de esta Stack
+
+**Backend Django:**
+- ORM potente y flexible
+- Admin panel automático
+- Seguridad robusta por defecto
+- Escalabilidad probada
+
+**Frontend React:**
+- Ecosystem maduro
+- Performance excelente
+- Tailwind para diseño rápido
+- Framer Motion para animaciones fluidas
+
+**Integración:**
+- API REST bien definida
+- Autenticación JWT segura
+- Separación clara de responsabilidades
+- Preparado para microservicios
+
+Este flujo te permitirá crear un ecommerce moderno, con animaciones fluidas y una experiencia de usuario excepcional, manteniendo un backend robusto y escalable.
