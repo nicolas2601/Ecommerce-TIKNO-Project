@@ -19,7 +19,6 @@ const Register = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    username: '',
     email: '',
     phone: '',
     password: '',
@@ -100,13 +99,7 @@ const Register = () => {
       newErrors.last_name = 'El apellido es requerido';
     }
     
-    if (!formData.username.trim()) {
-      newErrors.username = 'El nombre de usuario es requerido';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'El nombre de usuario debe tener al menos 3 caracteres';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-      newErrors.username = 'Solo se permiten letras, números y guiones bajos';
-    }
+    // Username field removed - not needed in backend
     
     if (!formData.email) {
       newErrors.email = 'El email es requerido';
@@ -114,9 +107,7 @@ const Register = () => {
       newErrors.email = 'El email no es válido';
     }
     
-    if (!formData.phone) {
-      newErrors.phone = 'El teléfono es requerido';
-    } else if (!/^[+]?[0-9\s\-()]{10,}$/.test(formData.phone)) {
+    if (formData.phone && !/^[+]?[0-9\s\-()]{10,}$/.test(formData.phone)) {
       newErrors.phone = 'El formato del teléfono no es válido';
     }
     
@@ -289,38 +280,7 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Username Field */}
-            <div>
-              <label htmlFor="username" className="label">
-                Nombre de Usuario
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-sm">@</span>
-                </div>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autoComplete="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className={`input pl-8 ${
-                    errors.username ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                  }`}
-                  placeholder="usuario123"
-                />
-              </div>
-              {errors.username && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-1 text-sm text-red-600"
-                >
-                  {errors.username}
-                </motion.p>
-              )}
-            </div>
+            {/* Username field removed - not needed in backend */}
 
             {/* Email and Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -358,7 +318,7 @@ const Register = () => {
 
               <div>
                 <label htmlFor="phone" className="label">
-                  Teléfono
+                  Teléfono (opcional)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

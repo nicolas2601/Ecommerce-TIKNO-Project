@@ -18,7 +18,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
-import axios from 'axios';
+import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -51,12 +51,16 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/products/${id}/`);
+      const response = await api.getProduct(id);
       setProduct(response.data);
       
       // Fetch related products
       if (response.data.category) {
-        const relatedResponse = await axios.get(`/products/?category=${response.data.category.slug}&exclude=${id}&limit=4`);
+        const relatedResponse = await api.getProducts({
+          category: response.data.category.slug,
+          exclude: id,
+          limit: 4
+        });
         setRelatedProducts(relatedResponse.data.results || relatedResponse.data);
       }
     } catch (error) {
@@ -70,7 +74,7 @@ const ProductDetail = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get(`/products/${id}/reviews/`);
+      const response = await api.getProductReviews(id);
       setReviews(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching reviews:', error);
@@ -123,7 +127,7 @@ const ProductDetail = () => {
     }
 
     try {
-      await axios.post(`/products/${id}/reviews/`, newReview);
+      await api.createProductReview(id, newReview);
       toast.success('Reseña enviada exitosamente');
       setNewReview({ rating: 5, comment: '' });
       setShowReviewForm(false);
@@ -194,9 +198,12 @@ const ProductDetail = () => {
               whileHover={{ scale: 1.02 }}
             >
               <img
-                src={images[selectedImageIndex]?.image_url || product.main_image_url}
+                src={images[selectedImageIndex]?.image_url || product.main_image_url || product.get_main_image_url || 'https://via.placeholder.com/600x600?text=Sin+Imagen'}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/600x600?text=Sin+Imagen';
+                }}
               />
               
               {/* Image Navigation */}

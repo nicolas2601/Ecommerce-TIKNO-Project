@@ -12,7 +12,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import axios from 'axios';
+import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -53,26 +53,26 @@ const Products = () => {
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
+      const params = {};
       
       // Add filters to params
-      if (filters.search) params.set('search', filters.search);
-      if (filters.category) params.set('category', filters.category);
-      if (filters.minPrice) params.set('min_price', filters.minPrice);
-      if (filters.maxPrice) params.set('max_price', filters.maxPrice);
-      if (filters.inStock) params.set('in_stock', 'true');
-      if (filters.featured) params.set('featured', 'true');
-      if (filters.rating) params.set('min_rating', filters.rating);
+      if (filters.search) params.search = filters.search;
+      if (filters.category) params.category = filters.category;
+      if (filters.minPrice) params.min_price = filters.minPrice;
+      if (filters.maxPrice) params.max_price = filters.maxPrice;
+      if (filters.inStock) params.in_stock = 'true';
+      if (filters.featured) params.is_featured = 'true';
+      if (filters.rating) params.min_rating = filters.rating;
       
       // Add sorting
       const orderPrefix = sortOrder === 'desc' ? '-' : '';
-      params.set('ordering', `${orderPrefix}${sortBy}`);
+      params.ordering = `${orderPrefix}${sortBy}`;
       
       // Add pagination
-      params.set('page', currentPage.toString());
-      params.set('page_size', '12');
+      params.page = currentPage.toString();
+      params.page_size = '12';
       
-      const response = await axios.get(`/products/?${params.toString()}`);
+      const response = await api.getProducts(params);
       
       setProducts(response.data.results || response.data);
       setTotalPages(Math.ceil((response.data.count || response.data.length) / 12));
@@ -106,7 +106,7 @@ const Products = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('/products/categories/');
+      const response = await api.getCategories();
       setCategories(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -432,9 +432,12 @@ const Products = () => {
                       <>
                         <div className="relative overflow-hidden">
                           <img
-                            src={product.main_image_url || '/api/placeholder/300/300'}
+                            src={product.main_image_url || product.get_main_image_url || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
                             alt={product.name}
                             className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/300x300?text=Sin+Imagen';
+                            }}
                           />
                           
                           {/* Product Actions */}
@@ -528,9 +531,12 @@ const Products = () => {
                       <>
                         <div className="w-48 flex-shrink-0 relative overflow-hidden">
                           <img
-                            src={product.main_image_url || '/api/placeholder/300/300'}
+                            src={product.main_image_url || product.get_main_image_url || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
                             alt={product.name}
                             className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/300x300?text=Sin+Imagen';
+                            }}
                           />
                           
                           {/* Discount Badge */}

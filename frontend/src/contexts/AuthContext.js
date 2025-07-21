@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { api } from '../lib/axios'
 
 const AuthContext = createContext({})
 
@@ -33,71 +34,51 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (email, password, userData = {}) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          password_confirm: password,
-          first_name: userData.firstName || '',
-          last_name: userData.lastName || '',
-          phone: userData.phone || ''
-        })
+      const response = await api.register({
+        email,
+        password,
+        password_confirm: password,
+        first_name: userData.firstName || '',
+        last_name: userData.lastName || '',
+        phone: userData.phone || ''
       })
 
-      const data = await response.json()
+      const data = response.data
 
-      if (response.ok) {
-        // Guardar tokens y usuario en localStorage
-        localStorage.setItem('access_token', data.access)
-        localStorage.setItem('refresh_token', data.refresh)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        setToken(data.access)
-        setUser(data.user)
-        
-        return { data, error: null }
-      } else {
-        return { data: null, error: data }
-      }
+      // Guardar tokens y usuario en localStorage
+      localStorage.setItem('access_token', data.access)
+      localStorage.setItem('refresh_token', data.refresh)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      
+      setToken(data.access)
+      setUser(data.user)
+      
+      return { data, error: null }
     } catch (error) {
-      return { data: null, error: { message: error.message } }
+      return { data: null, error: error.response?.data || { message: error.message } }
     }
   }
 
   const signIn = async (email, password) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
+      const response = await api.login({
+        email,
+        password
       })
 
-      const data = await response.json()
+      const data = response.data
 
-      if (response.ok) {
-        // Guardar tokens y usuario en localStorage
-        localStorage.setItem('access_token', data.access)
-        localStorage.setItem('refresh_token', data.refresh)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        setToken(data.access)
-        setUser(data.user)
-        
-        return { data, error: null }
-      } else {
-        return { data: null, error: data }
-      }
+      // Guardar tokens y usuario en localStorage
+      localStorage.setItem('access_token', data.access)
+      localStorage.setItem('refresh_token', data.refresh)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      
+      setToken(data.access)
+      setUser(data.user)
+      
+      return { data, error: null }
     } catch (error) {
-      return { data: null, error: { message: error.message } }
+      return { data: null, error: error.response?.data || { message: error.message } }
     }
   }
 
@@ -106,16 +87,7 @@ export const AuthProvider = ({ children }) => {
       const refreshToken = localStorage.getItem('refresh_token')
       
       if (refreshToken) {
-        await fetch(`${process.env.REACT_APP_API_URL}/auth/logout/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            refresh: refreshToken
-          })
-        })
+        await api.logout({ refresh: refreshToken })
       }
       
       // Limpiar localStorage
@@ -134,25 +106,25 @@ export const AuthProvider = ({ children }) => {
 
   const resetPassword = async (email) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/password/reset/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        return { data, error: null }
-      } else {
-        return { data: null, error: data }
-      }
+      const response = await api.resetPassword({ email })
+      return { data: response.data, error: null }
     } catch (error) {
-      return { data: null, error: { message: error.message } }
+      return { data: null, error: error.response?.data || { message: error.message } }
     }
   }
+
+  // Alias para compatibilidad con el componente Register
+  const register = async (formData) => {
+    return await signUp(
+      formData.email,
+      formData.password,
+      {
+        firstName: formData.first_name,
+        lastName: formData.last_name,
+        phone: formData.phone
+      }
+    );
+  };
 
   const value = {
     user,
@@ -161,7 +133,9 @@ export const AuthProvider = ({ children }) => {
     signUp,
     signIn,
     signOut,
-    resetPassword
+    resetPassword,
+    register,
+    isAuthenticated: !!user
   }
 
   return (

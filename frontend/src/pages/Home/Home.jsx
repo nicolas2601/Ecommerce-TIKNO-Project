@@ -13,7 +13,7 @@ import {
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import axios from 'axios';
+import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -34,8 +34,8 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        axios.get('/products/?featured=true&limit=8'),
-        axios.get('/products/categories/?limit=6')
+        api.getProducts({ is_featured: true, limit: 8 }),
+        api.getCategories({ limit: 6 })
       ]);
       
       setFeaturedProducts(productsRes.data.results || productsRes.data);
