@@ -1,44 +1,98 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
-import ProtectedRoute from './components/ProtectedRoute'
-import LoginForm from './components/auth/LoginForm'
-import RegisterForm from './components/auth/RegisterForm'
-import ForgotPasswordForm from './components/auth/ForgotPasswordForm'
-import Dashboard from './components/Dashboard'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
+import Layout from './components/Layout/Layout';
+import Home from './pages/Home/Home';
+import Products from './pages/Products/Products';
+import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Cart from './pages/Cart/Cart';
+import Checkout from './pages/Checkout/Checkout';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import Profile from './pages/Profile/Profile';
+import './styles/globals.css';
+
+// Componente de ruta protegida
+const ProtectedRoute = ({ children }) => {
+  // Por ahora permitimos acceso a todas las rutas
+  // En una implementación real, verificarías la autenticación aquí
+  return children;
+};
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Ruta por defecto */}
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            
-            {/* Rutas de autenticación */}
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/register" element={<RegisterForm />} />
-            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-            
-            {/* Rutas protegidas */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
+      <CartProvider>
+        <Router>
+          <div className="App">
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 3000,
+                  theme: {
+                    primary: '#4ade80',
+                    secondary: '#000',
+                  },
+                },
+                error: {
+                  duration: 4000,
+                  theme: {
+                    primary: '#ef4444',
+                    secondary: '#000',
+                  },
+                },
+              }}
             />
             
-            {/* Ruta 404 */}
-            <Route path="*" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </div>
-      </Router>
+            <Routes>
+              {/* Rutas públicas con Layout */}
+              <Route path="/" element={<Layout><Home /></Layout>} />
+              <Route path="/products" element={<Layout><Products /></Layout>} />
+              <Route path="/products/:id" element={<Layout><ProductDetail /></Layout>} />
+              <Route path="/cart" element={<Layout><Cart /></Layout>} />
+              
+              {/* Rutas de autenticación sin Layout */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Rutas protegidas con Layout */}
+              <Route 
+                path="/checkout" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Checkout /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Profile /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Rutas adicionales */}
+              <Route path="/categories/:category" element={<Layout><Products /></Layout>} />
+              <Route path="/search" element={<Layout><Products /></Layout>} />
+              
+              {/* Ruta 404 */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </CartProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
