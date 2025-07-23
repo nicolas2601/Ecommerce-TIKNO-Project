@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingCartIcon, 
@@ -14,7 +14,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import toast from 'react-hot-toast';
 
-const Layout = () => {
+const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -314,7 +314,7 @@ const Layout = () => {
 
       {/* Main Content */}
       <main className="pt-16 lg:pt-20">
-        <Outlet />
+        {children}
       </main>
 
       {/* Footer */}

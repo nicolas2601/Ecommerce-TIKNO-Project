@@ -432,7 +432,7 @@ const Products = () => {
                       <>
                         <div className="relative overflow-hidden">
                           <img
-                            src={product.main_image_url || product.get_main_image_url || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
+                            src={product.main_image || product.main_image_url || (product.images && product.images.length > 0 ? product.images[0].image_url : null) || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
                             alt={product.name}
                             className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                             onError={(e) => {
@@ -531,7 +531,7 @@ const Products = () => {
                       <>
                         <div className="w-48 flex-shrink-0 relative overflow-hidden">
                           <img
-                            src={product.main_image_url || product.get_main_image_url || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
+                            src={product.main_image || product.main_image_url || (product.images && product.images.length > 0 ? product.images[0].image_url : null) || 'https://via.placeholder.com/300x300?text=Sin+Imagen'}
                             alt={product.name}
                             className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                             onError={(e) => {
