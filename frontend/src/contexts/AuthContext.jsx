@@ -87,19 +87,26 @@ export const AuthProvider = ({ children }) => {
       if (token && userData) {
         try {
           const parsedUser = JSON.parse(userData);
+          
+          // Verify token is still valid before setting authenticated state
+          await axios.get('/auth/profile/');
+          
+          // Only set user and authenticated state if token is valid
           setUser(parsedUser);
           setIsAuthenticated(true);
-          
-          // Verify token is still valid
-          await axios.get('/auth/user/');
         } catch (error) {
           // Token is invalid, clear storage
+          console.log('Token validation failed, clearing storage:', error.message);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
           setUser(null);
           setIsAuthenticated(false);
         }
+      } else {
+        // No token or user data found
+        setUser(null);
+        setIsAuthenticated(false);
       }
       setLoading(false);
     };
@@ -170,14 +177,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
-        await axios.post('/auth/logout/', {
-          refresh: refreshToken
-        });
+        try {
+          await axios.post('/auth/logout/', {
+            refresh: refreshToken
+          });
+        } catch (serverError) {
+          // Log server error but don't throw - we still want to clear local storage
+          console.error('Server logout error:', serverError);
+        }
       }
-    } catch (error) {
-      // Even if logout fails on server, we still clear local storage
-      console.error('Logout error:', error);
-    } finally {
+      
       // Clear all stored data
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
@@ -185,13 +194,28 @@ export const AuthProvider = ({ children }) => {
       
       setUser(null);
       setIsAuthenticated(false);
+      
+      return { success: true };
+    } catch (error) {
+      // This should rarely happen since we're handling server errors above
+      console.error('Logout error:', error);
+      
+      // Still clear local storage even if there's an unexpected error
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      
+      setUser(null);
+      setIsAuthenticated(false);
+      
+      return { success: false, error: error.message };
     }
   };
 
   const updateUser = async (userData) => {
     try {
       setLoading(true);
-      const response = await axios.patch('/auth/user/', userData);
+      const response = await axios.patch('/auth/profile/', userData);
       
       const updatedUser = response.data;
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -213,7 +237,7 @@ export const AuthProvider = ({ children }) => {
   const changePassword = async (currentPassword, newPassword) => {
     try {
       setLoading(true);
-      await axios.post('/auth/change-password/', {
+      await axios.post('/auth/password/change/', {
         current_password: currentPassword,
         new_password: newPassword
       });
@@ -234,7 +258,7 @@ export const AuthProvider = ({ children }) => {
   const requestPasswordReset = async (email) => {
     try {
       setLoading(true);
-      await axios.post('/auth/password-reset/', { email });
+      await axios.post('/auth/password/reset/', { email });
       
       toast.success('Se ha enviado un enlace de recuperación a tu email');
       return { success: true };
@@ -252,7 +276,7 @@ export const AuthProvider = ({ children }) => {
   const resetPassword = async (token, newPassword) => {
     try {
       setLoading(true);
-      await axios.post('/auth/password-reset-confirm/', {
+      await axios.post('/auth/password/reset/confirm/', {
         token,
         password: newPassword
       });
@@ -272,7 +296,7 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUserData = async () => {
     try {
-      const response = await axios.get('/auth/user/');
+      const response = await axios.get('/auth/profile/');
       const userData = response.data;
       
       localStorage.setItem('user', JSON.stringify(userData));

@@ -102,56 +102,50 @@ export const api = {
   
   // Carrito
   getCart: () => {
-    return axiosInstance.get('/orders/cart/');
+    return axiosInstance.get('/cart/');
   },
   
   addToCart: (productId, quantity = 1) => {
-    return axiosInstance.post('/orders/cart/add_item/', {
+    return axiosInstance.post('/cart/add_item/', {
       product_id: productId,
       quantity
     });
   },
   
   updateCartItem: (itemId, quantity) => {
-    return axiosInstance.put('/orders/cart/update_item/', {
+    return axiosInstance.put('/cart/update_item/', {
       item_id: itemId,
       quantity
     });
   },
   
   removeFromCart: (itemId) => {
-    return axiosInstance.delete('/orders/cart/remove_item/', {
+    return axiosInstance.delete('/cart/remove_item/', {
       data: { item_id: itemId }
     });
   },
   
   clearCart: () => {
-    return axiosInstance.delete('/orders/cart/clear/');
+    return axiosInstance.delete('/cart/clear/');
   },
   
   // Órdenes
   getOrders: () => {
-    return axiosInstance.get('/orders/');
+    return axiosInstance.get('/orders/orders/');
   },
   
   createOrder: (orderData) => {
-    return axiosInstance.post('/orders/', orderData);
+    return axiosInstance.post('/orders/orders/', orderData);
   },
   
   // Autenticación
   login: (credentials) => axiosInstance.post('/auth/login/', credentials),
   register: (userData) => axiosInstance.post('/auth/register/', userData),
-  logout: (data) => axiosInstance.post('/auth/logout/', data),
+  logout: (refreshToken) => axiosInstance.post('/auth/logout/', { refresh: refreshToken }),
   refreshToken: (refreshToken) => axiosInstance.post('/auth/token/refresh/', { refresh: refreshToken }),
-  resetPassword: (data) => axiosInstance.post('/auth/password/reset/', data),
-  
-  getProfile: () => {
-    return axiosInstance.get('/auth/profile/');
-  },
-  
-  updateProfile: (userData) => {
-    return axiosInstance.patch('/auth/profile/', userData);
-  },
+  resetPassword: (email) => axiosInstance.post('/auth/password-reset/', { email }),
+  getProfile: () => axiosInstance.get('/auth/profile/'),
+  updateProfile: (data) => axiosInstance.patch('/auth/profile/', data),
   
   // Upload de imágenes
   uploadImage: (file, folder = 'products') => {

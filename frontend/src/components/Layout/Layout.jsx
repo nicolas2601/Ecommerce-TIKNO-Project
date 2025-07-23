@@ -49,18 +49,24 @@ const Layout = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      toast.success('Sesión cerrada exitosamente');
+      const result = await logout();
+      if (result.success) {
+        toast.success('Sesión cerrada exitosamente');
+      } else {
+        toast.warning('Sesión cerrada localmente (error del servidor)');
+      }
       navigate('/');
     } catch (error) {
+      console.error('Logout error:', error);
       toast.error('Error al cerrar sesión');
+      // Even if there's an error, try to navigate to home
+      navigate('/');
     }
   };
 
   const navigation = [
     { name: 'Inicio', href: '/', current: location.pathname === '/' },
     { name: 'Productos', href: '/products', current: location.pathname.startsWith('/products') },
-    { name: 'Categorías', href: '/categories', current: location.pathname.startsWith('/categories') },
     { name: 'Contacto', href: '/contact', current: location.pathname === '/contact' },
   ];
 

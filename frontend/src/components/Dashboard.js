@@ -1,14 +1,26 @@
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
-    await signOut()
-    navigate('/login')
+    try {
+      const result = await logout()
+      if (result.success) {
+        toast.success('Sesión cerrada exitosamente')
+      } else {
+        toast.warning('Sesión cerrada localmente (error del servidor)')
+      }
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Error al cerrar sesión')
+      navigate('/login')
+    }
   }
 
   return (
