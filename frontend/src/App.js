@@ -7,6 +7,8 @@ import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Categories from './pages/Categories/Categories';
+import Contact from './pages/Contact/Contact';
 import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Auth/Login';
@@ -57,6 +59,9 @@ function App() {
               <Route path="/" element={<Layout><Home /></Layout>} />
               <Route path="/products" element={<Layout><Products /></Layout>} />
               <Route path="/products/:id" element={<Layout><ProductDetail /></Layout>} />
+              <Route path="/categories" element={<Layout><Categories /></Layout>} />
+              <Route path="/categories/:category" element={<Layout><Categories /></Layout>} />
+              <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
               
               {/* Rutas de autenticación sin Layout */}
@@ -82,7 +87,6 @@ function App() {
               />
               
               {/* Rutas adicionales */}
-              <Route path="/categories/:category" element={<Layout><Products /></Layout>} />
               <Route path="/search" element={<Layout><Products /></Layout>} />
               
               {/* Ruta 404 */}

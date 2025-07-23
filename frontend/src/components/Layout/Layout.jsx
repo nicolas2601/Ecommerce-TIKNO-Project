@@ -61,7 +61,6 @@ const Layout = ({ children }) => {
     { name: 'Inicio', href: '/', current: location.pathname === '/' },
     { name: 'Productos', href: '/products', current: location.pathname.startsWith('/products') },
     { name: 'Categorías', href: '/categories', current: location.pathname.startsWith('/categories') },
-    { name: 'Ofertas', href: '/deals', current: location.pathname === '/deals' },
     { name: 'Contacto', href: '/contact', current: location.pathname === '/contact' },
   ];
 
