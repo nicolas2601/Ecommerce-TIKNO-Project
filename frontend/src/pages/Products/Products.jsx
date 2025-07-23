@@ -15,6 +15,7 @@ import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import toast from 'react-hot-toast';
 
 const Products = () => {
@@ -24,7 +25,7 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [wishlist, setWishlist] = useState([]);
+
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -137,17 +138,10 @@ const Products = () => {
     await addToCart(product, 1);
   };
 
-  const toggleWishlist = (productId) => {
-    if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar a favoritos');
-      return;
-    }
-    
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const handleToggleWishlist = (product) => {
+    toggleWishlist(product);
   };
 
   const sortOptions = [
@@ -445,10 +439,10 @@ const Products = () => {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => toggleWishlist(product.id)}
+                              onClick={() => handleToggleWishlist(product)}
                               className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-medium hover:shadow-large transition-shadow duration-200"
                             >
-                              {wishlist.includes(product.id) ? (
+                              {isInWishlist(product.id) ? (
                                 <HeartSolidIcon className="h-5 w-5 text-red-500" />
                               ) : (
                                 <HeartIcon className="h-5 w-5 text-gray-600" />
@@ -597,10 +591,10 @@ const Products = () => {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                onClick={() => toggleWishlist(product.id)}
+                                onClick={() => handleToggleWishlist(product)}
                                 className="p-2 text-gray-600 hover:text-red-500 transition-colors duration-200"
                               >
-                                {wishlist.includes(product.id) ? (
+                                {isInWishlist(product.id) ? (
                                   <HeartSolidIcon className="h-5 w-5 text-red-500" />
                                 ) : (
                                   <HeartIcon className="h-5 w-5" />

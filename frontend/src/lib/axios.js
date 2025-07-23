@@ -89,7 +89,7 @@ export const api = {
   },
   
   getCategories: () => {
-    return axiosInstance.get('/products/categories/');
+    return axiosInstance.get('/categories/');
   },
   
   getProductReviews: (productId) => {
@@ -106,20 +106,27 @@ export const api = {
   },
   
   addToCart: (productId, quantity = 1) => {
-    return axiosInstance.post('/orders/cart/add/', {
+    return axiosInstance.post('/orders/cart/add_item/', {
       product_id: productId,
       quantity
     });
   },
   
   updateCartItem: (itemId, quantity) => {
-    return axiosInstance.patch(`/orders/cart/items/${itemId}/`, {
+    return axiosInstance.put('/orders/cart/update_item/', {
+      item_id: itemId,
       quantity
     });
   },
   
   removeFromCart: (itemId) => {
-    return axiosInstance.delete(`/orders/cart/items/${itemId}/`);
+    return axiosInstance.delete('/orders/cart/remove_item/', {
+      data: { item_id: itemId }
+    });
+  },
+  
+  clearCart: () => {
+    return axiosInstance.delete('/orders/cart/clear/');
   },
   
   // Órdenes

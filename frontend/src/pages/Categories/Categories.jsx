@@ -6,13 +6,16 @@ import {
   Squares2X2Icon,
   ListBulletIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   XMarkIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import ProductCard from '../../components/ProductCard';
+import Loading from '../../components/UI/Loading';
 import toast from 'react-hot-toast';
 
 const Categories = () => {
@@ -24,6 +27,8 @@ const Categories = () => {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [sortBy, setSortBy] = useState('name');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
+  const { wishlist } = useWishlist();
 
   const sortOptions = [
     { value: 'name', label: 'Nombre A-Z' },
@@ -104,7 +109,7 @@ const Categories = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <Loading size="lg" />
       </div>
     );
   }
@@ -209,8 +214,6 @@ const Categories = () => {
                     key={product.id}
                     product={product} 
                     viewMode={viewMode}
-                    wishlist={wishlist}
-                    onToggleWishlist={toggleWishlist}
                   />
                 ))}
               </motion.div>

@@ -10,30 +10,24 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import toast from 'react-hot-toast';
 
 const ProductCard = ({ 
   product, 
-  viewMode = 'grid', 
-  wishlist = [], 
-  onToggleWishlist 
+  viewMode = 'grid'
 }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const handleAddToCart = async () => {
     await addToCart(product, 1);
   };
 
   const handleToggleWishlist = () => {
-    if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar a favoritos');
-      return;
-    }
-    if (onToggleWishlist) {
-      onToggleWishlist(product.id);
-    }
+    toggleWishlist(product);
   };
 
   const getImageUrl = () => {
@@ -120,7 +114,7 @@ const ProductCard = ({
                 onClick={handleToggleWishlist}
                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-medium hover:shadow-large transition-shadow duration-200"
               >
-                {wishlist.includes(product.id) ? (
+                {isInWishlist(product.id) ? (
                   <HeartSolidIcon className="h-5 w-5 text-red-500" />
                 ) : (
                   <HeartIcon className="h-5 w-5 text-gray-600" />
@@ -177,7 +171,7 @@ const ProductCard = ({
             onClick={handleToggleWishlist}
             className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-medium hover:shadow-large transition-shadow duration-200"
           >
-            {wishlist.includes(product.id) ? (
+            {isInWishlist(product.id) ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
               <HeartIcon className="h-5 w-5 text-gray-600" />

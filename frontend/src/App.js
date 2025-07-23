@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
@@ -10,6 +11,7 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Categories from './pages/Categories/Categories';
 import Contact from './pages/Contact/Contact';
 import Cart from './pages/Cart/Cart';
+import Wishlist from './pages/Wishlist/Wishlist';
 import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
@@ -27,7 +29,8 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
+        <WishlistProvider>
+          <Router>
           <div className="App">
             <Toaster
               position="top-right"
@@ -63,6 +66,7 @@ function App() {
               <Route path="/categories/:category" element={<Layout><Categories /></Layout>} />
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
+              <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
               
               {/* Rutas de autenticación sin Layout */}
               <Route path="/login" element={<Login />} />
@@ -93,7 +97,8 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
-        </Router>
+          </Router>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );
