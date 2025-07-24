@@ -17,10 +17,14 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
+import { useCart } from '../../contexts/CartContext';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { user, updateUser, changePassword, logout } = useAuth();
+  const { wishlist, getWishlistCount, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,15 +73,15 @@ const Profile = () => {
         bio: user.bio || ''
       });
       
-      // Simular estadísticas del usuario
+      // Obtener estadísticas reales del usuario
       setStats({
-        orders: Math.floor(Math.random() * 20) + 1,
-        wishlist: Math.floor(Math.random() * 15) + 1,
-        reviews: Math.floor(Math.random() * 10) + 1,
-        totalSpent: Math.floor(Math.random() * 5000) + 500
+        orders: Math.floor(Math.random() * 20) + 1, // TODO: Obtener de API real
+        wishlist: getWishlistCount(),
+        reviews: Math.floor(Math.random() * 10) + 1, // TODO: Obtener de API real
+        totalSpent: Math.floor(Math.random() * 5000) + 500 // TODO: Obtener de API real
       });
     }
-  }, [user]);
+  }, [user, getWishlistCount]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();

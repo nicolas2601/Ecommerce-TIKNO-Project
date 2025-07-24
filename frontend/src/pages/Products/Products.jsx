@@ -8,8 +8,7 @@ import {
   ListBulletIcon,
   StarIcon,
   ShoppingCartIcon,
-  HeartIcon,
-  EyeIcon
+  HeartIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { api } from '../../lib/axios';
@@ -449,14 +448,6 @@ const Products = () => {
                               )}
                             </motion.button>
                             
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => navigate(`/products/${product.id}`)}
-                              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-medium hover:shadow-large transition-shadow duration-200"
-                            >
-                              <EyeIcon className="h-5 w-5 text-gray-600" />
-                            </motion.button>
                           </div>
                           
                           {/* Discount Badge */}
@@ -600,15 +591,7 @@ const Products = () => {
                                   <HeartIcon className="h-5 w-5" />
                                 )}
                               </motion.button>
-                              
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => navigate(`/products/${product.id}`)}
-                                className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                              >
-                                <EyeIcon className="h-5 w-5" />
-                              </motion.button>
+                          
                               
                               <motion.button
                                 whileHover={{ scale: 1.02 }}

@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import { toast } from 'react-hot-toast';
 import { sendNewsletterWelcome } from '../../services/emailService';
 
@@ -25,6 +26,8 @@ const Layout = ({ children }) => {
   const [footerNewsletterLoading, setFooterNewsletterLoading] = useState(false);
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
+  const { getWishlistCount } = useWishlist();
+  const wishlistCount = getWishlistCount();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -197,9 +200,18 @@ const Layout = ({ children }) => {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate('/wishlist')}
-                  className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                  className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
                 >
                   <HeartIcon className="h-6 w-6" />
+                  {wishlistCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                    >
+                      {wishlistCount}
+                    </motion.span>
+                  )}
                 </motion.button>
               )}
 
