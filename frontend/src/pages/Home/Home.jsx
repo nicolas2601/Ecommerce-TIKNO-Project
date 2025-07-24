@@ -17,12 +17,15 @@ import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { sendNewsletterWelcome } from '../../services/emailService';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -63,6 +66,27 @@ const Home = () => {
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
+  };
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    setNewsletterLoading(true);
+    
+    try {
+      const result = await sendNewsletterWelcome(newsletterEmail, 'Nuevo suscriptor');
+      
+      if (result.success) {
+        toast.success('¡Te has suscrito exitosamente al newsletter!');
+        setNewsletterEmail('');
+      } else {
+        toast.error(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error al suscribirse al newsletter:', error);
+      toast.error('Error al suscribirse. Por favor, intenta de nuevo.');
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -427,19 +451,24 @@ const Home = () => {
               Suscríbete a nuestro newsletter y recibe descuentos exclusivos y novedades
             </p>
             
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Tu email"
-                className="flex-1 px-6 py-3 rounded-full border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                required
+                disabled={newsletterLoading}
+                className="flex-1 px-6 py-3 rounded-full border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600 disabled:opacity-50"
               />
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: newsletterLoading ? 1 : 1.05 }}
+                whileTap={{ scale: newsletterLoading ? 1 : 0.95 }}
                 type="submit"
-                className="btn-lg bg-white text-primary-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-full"
+                disabled={newsletterLoading}
+                className="btn-lg bg-white text-primary-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Suscribirse
+                {newsletterLoading ? 'Enviando...' : 'Suscribirse'}
               </motion.button>
             </form>
           </motion.div>

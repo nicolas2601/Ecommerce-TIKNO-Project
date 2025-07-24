@@ -62,7 +62,7 @@ const Contact = () => {
     {
       icon: PhoneIcon,
       title: 'Teléfono',
-      details: ['+1 (555) 123-4567', '+1 (555) 987-6543'],
+      details: ['+57 3502328517'],
       description: 'Lunes a Viernes, 9:00 AM - 6:00 PM'
     },
     {
@@ -74,7 +74,7 @@ const Contact = () => {
     {
       icon: MapPinIcon,
       title: 'Dirección',
-      details: ['123 Calle Principal', 'Ciudad, Estado 12345'],
+      details: ['Calle 10 # 10 - 10', '<Bucaramanga></Bucaramanga>, Colombia'],
       description: 'Visítanos en nuestras oficinas'
     },
     {
