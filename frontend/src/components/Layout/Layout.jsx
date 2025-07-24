@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShoppingCartIcon, 
-  MagnifyingGlassIcon,
+import {
   Bars3Icon,
   XMarkIcon,
+  MagnifyingGlassIcon,
+  ShoppingCartIcon,
+  UserIcon,
   HeartIcon,
-  BellIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  BellIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { sendNewsletterWelcome } from '../../services/emailService';
 
 const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [footerNewsletterEmail, setFooterNewsletterEmail] = useState('');
+  const [footerNewsletterLoading, setFooterNewsletterLoading] = useState(false);
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
@@ -61,6 +65,33 @@ const Layout = ({ children }) => {
       toast.error('Error al cerrar sesión');
       // Even if there's an error, try to navigate to home
       navigate('/');
+    }
+  };
+
+  const handleFooterNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!footerNewsletterEmail.trim()) {
+      toast.error('Por favor, ingresa tu email.');
+      return;
+    }
+
+    setFooterNewsletterLoading(true);
+    
+    try {
+      const result = await sendNewsletterWelcome(footerNewsletterEmail, 'Nuevo suscriptor');
+      
+      if (result.success) {
+        toast.success('¡Te has suscrito exitosamente al newsletter!');
+        setFooterNewsletterEmail('');
+      } else {
+        toast.error(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error al suscribirse al newsletter:', error);
+      toast.error('Error al suscribirse. Por favor, intenta de nuevo.');
+    } finally {
+      setFooterNewsletterLoading(false);
     }
   };
 
@@ -413,19 +444,25 @@ const Layout = ({ children }) => {
               <p className="text-gray-400 text-sm mb-4">
                 Suscríbete para recibir ofertas exclusivas y novedades.
               </p>
-              <form className="space-y-2">
+              <form onSubmit={handleFooterNewsletterSubmit} className="space-y-2">
                 <input
                   type="email"
+                  value={footerNewsletterEmail}
+                  onChange={(e) => setFooterNewsletterEmail(e.target.value)}
                   placeholder="Tu email"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-white placeholder-gray-400"
+                  disabled={footerNewsletterLoading}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-white placeholder-gray-400 disabled:opacity-50"
                 />
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: footerNewsletterLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: footerNewsletterLoading ? 1 : 0.98 }}
                   type="submit"
-                  className="w-full btn-primary"
+                  disabled={footerNewsletterLoading}
+                  className={`w-full btn-primary ${
+                    footerNewsletterLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Suscribirse
+                  {footerNewsletterLoading ? 'Enviando...' : 'Suscribirse'}
                 </motion.button>
               </form>
             </div>

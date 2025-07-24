@@ -5,10 +5,12 @@ import {
   EnvelopeIcon, 
   MapPinIcon, 
   ClockIcon,
-  ChatBubbleLeftRightIcon,
-  CheckCircleIcon
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { sendContactMessage } from '../../services/emailService';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -31,28 +33,36 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validación básica
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast.error('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Simular envío del formulario
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await sendContactMessage(formData);
       
-      // En una implementación real, aquí enviarías los datos al backend
-      console.log('Formulario enviado:', formData);
-      
-      setIsSubmitted(true);
-      toast.success('¡Mensaje enviado correctamente! Te contactaremos pronto.');
-      
-      // Resetear formulario
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
+      if (result.success) {
+        setIsSubmitted(true);
+        toast.success('¡Mensaje enviado correctamente! Te contactaremos pronto.');
+        
+        // Resetear formulario
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        toast.error(`Error al enviar el mensaje: ${result.message}`);
+      }
     } catch (error) {
-      toast.error('Error al enviar el mensaje. Inténtalo de nuevo.');
+      console.error('Error al enviar formulario de contacto:', error);
+      toast.error('Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -193,9 +203,14 @@ const Contact = () => {
                 ¿Necesitas ayuda inmediata? Nuestro chat en vivo está disponible 
                 de lunes a viernes de 9:00 AM a 6:00 PM.
               </p>
-              <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+              <a 
+                href="https://wa.me/573232231831?text=Hola%20TiknoShop,%20quiero%20más%20información%20sobre%20sus%20productos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
                 Iniciar Chat
-              </button>
+              </a>
             </motion.div>
           </motion.div>
 
