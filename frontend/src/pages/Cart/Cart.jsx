@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ const Cart = () => {
     loading 
   } = useCart();
   const { isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -42,7 +43,7 @@ const Cart = () => {
     } else if (newQuantity <= item.product.stock) {
       await updateCartItem(item.product.id, newQuantity);
     } else {
-      toast.error(`Solo hay ${item.product.stock} unidades disponibles`);
+      addNotification(`Solo hay ${item.product.stock} unidades disponibles`, 'error');
     }
   };
 
@@ -53,7 +54,7 @@ const Cart = () => {
   const handleClearCart = () => {
     if (window.confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
       clearCart();
-      toast.success('Carrito vaciado');
+      addNotification('Carrito vaciado', 'success');
     }
   };
 
@@ -70,17 +71,17 @@ const Cart = () => {
         code: couponCode.toUpperCase(),
         ...validCoupons[couponCode.toUpperCase()]
       });
-      toast.success('Cupón aplicado exitosamente');
+      addNotification('Cupón aplicado exitosamente', 'success');
       setShowCouponForm(false);
       setCouponCode('');
     } else {
-      toast.error('Cupón inválido');
+      addNotification('Cupón inválido', 'error');
     }
   };
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
-    toast.success('Cupón removido');
+    addNotification('Cupón removido', 'success');
   };
 
   const calculateDiscount = () => {
@@ -109,7 +110,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para continuar');
+      addNotification('Debes iniciar sesión para continuar', 'error');
       navigate('/login', { state: { from: '/cart' } });
       return;
     }
@@ -128,10 +129,10 @@ const Cart = () => {
       };
       
       const order = await createOrder(orderData);
-      toast.success('Orden creada exitosamente');
+      addNotification('Orden creada exitosamente', 'success');
       navigate(`/checkout/${order.id}`);
     } catch (error) {
-      toast.error('Error al crear la orden');
+      addNotification('Error al crear la orden', 'error');
     } finally {
       setProcessingOrder(false);
     }

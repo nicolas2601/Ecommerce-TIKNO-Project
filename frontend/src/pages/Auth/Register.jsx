@@ -13,7 +13,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -34,6 +34,7 @@ const Register = () => {
   });
   
   const { register, isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,13 +138,13 @@ const Register = () => {
     try {
       setLoading(true);
       await register(formData);
-      toast.success('¡Cuenta creada exitosamente! Bienvenido a Tikno Store');
+      addNotification('¡Cuenta creada exitosamente! Bienvenido a Tikno Store', 'success');
       navigate('/', { replace: true });
     } catch (error) {
       const errorMessage = error.response?.data?.detail || 
                           error.response?.data?.message || 
                           'Error al crear la cuenta';
-      toast.error(errorMessage);
+      addNotification(errorMessage, 'error');
       
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);

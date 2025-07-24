@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../lib/axios';
-import toast from 'react-hot-toast';
+import { useNotifications } from './NotificationContext';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
@@ -18,6 +18,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [cartId, setCartId] = useState(null);
   const { user, isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
 
   // Calculate cart totals
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -77,9 +78,9 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       if (error.response?.status !== 404) {
         console.error('Error fetching cart:', error);
-        // Don't show error toast for 401 (unauthorized) errors
+        // Don't show error notification for 401 (unauthorized) errors
         if (error.response?.status !== 401) {
-          toast.error('Error al cargar el carrito');
+          addNotification('Error al cargar el carrito', 'error');
         }
       }
     } finally {
@@ -97,7 +98,7 @@ export const CartProvider = ({ children }) => {
 
         if (response.data) {
           await fetchCart(); // Refresh cart from server
-          toast.success(`${product.name} agregado al carrito`);
+          addNotification(`${product.name} agregado al carrito`, 'success');
         }
       } else {
         // Add to guest cart
@@ -123,13 +124,13 @@ export const CartProvider = ({ children }) => {
           setCartItems([...cartItems, newItem]);
         }
         
-        toast.success(`${product.name} agregado al carrito`);
+        addNotification(`${product.name} agregado al carrito`, 'success');
       }
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al agregar al carrito';
-      toast.error(message);
+      addNotification(message, 'error');
       console.error('Error adding to cart:', error);
     } finally {
       setLoading(false);
@@ -157,12 +158,12 @@ export const CartProvider = ({ children }) => {
         setCartItems(updatedItems);
       }
 
-      toast.success('Cantidad actualizada');
+      addNotification('Cantidad actualizada', 'success');
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al actualizar el carrito';
-      toast.error(message);
+      addNotification(message, 'error');
       console.error('Error updating cart item:', error);
     } finally {
       setLoading(false);
@@ -183,12 +184,12 @@ export const CartProvider = ({ children }) => {
         setCartItems(updatedItems);
       }
 
-      toast.success('Producto eliminado del carrito');
+      addNotification('Producto eliminado del carrito', 'success');
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al eliminar del carrito';
-      toast.error(message);
+      addNotification(message, 'error');
       console.error('Error removing from cart:', error);
     } finally {
       setLoading(false);
@@ -211,12 +212,12 @@ export const CartProvider = ({ children }) => {
       setCartId(null);
       localStorage.removeItem('guest_cart');
 
-      toast.success('Carrito vaciado');
+      addNotification('Carrito vaciado', 'success');
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al vaciar el carrito';
-      toast.error(message);
+      addNotification(message, 'error');
       console.error('Error clearing cart:', error);
     } finally {
       setLoading(false);
@@ -238,10 +239,10 @@ export const CartProvider = ({ children }) => {
       localStorage.removeItem('guest_cart');
       await fetchCart();
       
-      toast.success('Carrito sincronizado');
+      addNotification('Carrito sincronizado', 'success');
     } catch (error) {
       console.error('Error syncing guest cart:', error);
-      toast.error('Error al sincronizar el carrito');
+      addNotification('Error al sincronizar el carrito', 'error');
     } finally {
       setLoading(false);
     }
@@ -290,14 +291,14 @@ export const CartProvider = ({ children }) => {
       // Clear cart after successful order
       await clearCart();
       
-      toast.success('¡Pedido creado exitosamente!');
+      addNotification('¡Pedido creado exitosamente!', 'success');
       return { success: true, order: response.data };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      error.message || 
                      'Error al crear el pedido';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);

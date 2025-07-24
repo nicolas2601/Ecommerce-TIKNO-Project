@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { useNotifications } from './NotificationContext';
 
 const AuthContext = createContext();
 
@@ -77,6 +77,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { addNotification } = useNotifications();
 
   // Check if user is logged in on app start
   useEffect(() => {
@@ -132,13 +133,13 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       
-      toast.success('¡Bienvenido de vuelta!');
+      addNotification('¡Bienvenido de vuelta!', 'success');
       return { success: true, user: userData };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al iniciar sesión';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -160,13 +161,13 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
       setIsAuthenticated(true);
       
-      toast.success('¡Cuenta creada exitosamente!');
+      addNotification('¡Cuenta creada exitosamente!', 'success');
       return { success: true, user: newUser };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al crear la cuenta';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -221,13 +222,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       
-      toast.success('Perfil actualizado exitosamente');
+      addNotification('Perfil actualizado exitosamente', 'success');
       return { success: true, user: updatedUser };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al actualizar el perfil';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -242,13 +243,13 @@ export const AuthProvider = ({ children }) => {
         new_password: newPassword
       });
       
-      toast.success('Contraseña cambiada exitosamente');
+      addNotification('Contraseña cambiada exitosamente', 'success');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al cambiar la contraseña';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -260,13 +261,13 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       await axios.post('/auth/password/reset/', { email });
       
-      toast.success('Se ha enviado un enlace de recuperación a tu email');
+      addNotification('Se ha enviado un enlace de recuperación a tu email', 'success');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al solicitar recuperación de contraseña';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);
@@ -281,13 +282,13 @@ export const AuthProvider = ({ children }) => {
         password: newPassword
       });
       
-      toast.success('Contraseña restablecida exitosamente');
+      addNotification('Contraseña restablecida exitosamente', 'success');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.detail || 
                      error.response?.data?.message || 
                      'Error al restablecer la contraseña';
-      toast.error(message);
+      addNotification(message, 'error');
       return { success: false, error: message };
     } finally {
       setLoading(false);

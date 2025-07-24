@@ -19,15 +19,16 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useCart } from '../../contexts/CartContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Profile = () => {
-  const { user, updateUser, changePassword, logout } = useAuth();
+  const { user, updateUser, changePassword, loading } = useAuth();
+  const { addNotification } = useNotifications();
   const { wishlist, getWishlistCount, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -87,21 +88,21 @@ const Profile = () => {
     e.preventDefault();
     
     try {
-      setLoading(true);
+      setLocalLoading(true);
       await updateUser(profileData);
       setIsEditing(false);
-      toast.success('Perfil actualizado exitosamente');
+      addNotification('Perfil actualizado exitosamente', 'success');
     } catch (error) {
       const errorMessage = error.response?.data?.detail || 
                           error.response?.data?.message || 
                           'Error al actualizar el perfil';
-      toast.error(errorMessage);
+      addNotification(errorMessage, 'error');
       
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       }
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
@@ -109,23 +110,23 @@ const Profile = () => {
     e.preventDefault();
     
     if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error('Las contraseñas no coinciden');
+      addNotification('Las contraseñas no coinciden', 'error');
       return;
     }
     
     try {
-      setLoading(true);
+      setLocalLoading(true);
       await changePassword(passwordData.current_password, passwordData.new_password);
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
       setShowPasswordForm(false);
-      toast.success('Contraseña actualizada exitosamente');
+      addNotification('Contraseña actualizada exitosamente', 'success');
     } catch (error) {
       const errorMessage = error.response?.data?.detail || 
                           error.response?.data?.message || 
                           'Error al cambiar la contraseña';
-      toast.error(errorMessage);
+      addNotification(errorMessage, 'error');
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
@@ -353,15 +354,15 @@ const Profile = () => {
             <div className="mt-6 flex justify-end">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={localLoading}
                 className="btn-primary flex items-center space-x-2"
               >
-                {loading ? (
+                {localLoading ? (
                   <div className="loading-spinner w-4 h-4" />
                 ) : (
                   <CheckIcon className="w-4 h-4" />
                 )}
-                <span>{loading ? 'Guardando...' : 'Guardar Cambios'}</span>
+                <span>{localLoading ? 'Guardando...' : 'Guardar Cambios'}</span>
               </button>
             </div>
           )}
@@ -480,10 +481,10 @@ const Profile = () => {
                   <div className="flex space-x-3">
                     <button
                       type="submit"
-                      disabled={loading}
+                      disabled={localLoading}
                       className="btn-primary"
                     >
-                      {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
+                      {localLoading ? 'Actualizando...' : 'Actualizar Contraseña'}
                     </button>
                     <button
                       type="button"

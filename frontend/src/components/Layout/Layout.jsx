@@ -14,12 +14,15 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
-import { toast } from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
+// import { toast } from 'react-hot-toast'; // Replaced by notification system
 import { sendNewsletterWelcome } from '../../services/emailService';
+import NotificationPanel from '../Notifications/NotificationPanel';
 
 const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [footerNewsletterEmail, setFooterNewsletterEmail] = useState('');
@@ -27,7 +30,9 @@ const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
   const { getWishlistCount } = useWishlist();
+  const { getUnreadCount, addNotification } = useNotifications();
   const wishlistCount = getWishlistCount();
+  const unreadNotificationsCount = getUnreadCount();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,6 +49,7 @@ const Layout = ({ children }) => {
   useEffect(() => {
     setIsMenuOpen(false);
     setIsUserMenuOpen(false);
+    setIsNotificationPanelOpen(false);
   }, [location]);
 
   const handleSearch = (e) => {
@@ -58,14 +64,14 @@ const Layout = ({ children }) => {
     try {
       const result = await logout();
       if (result.success) {
-        toast.success('Sesión cerrada exitosamente');
+        addNotification('Sesión cerrada exitosamente', 'success');
       } else {
-        toast.warning('Sesión cerrada localmente (error del servidor)');
+        addNotification('Sesión cerrada localmente (error del servidor)', 'warning');
       }
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Error al cerrar sesión');
+      addNotification('Error al cerrar sesión', 'error');
       // Even if there's an error, try to navigate to home
       navigate('/');
     }
@@ -75,7 +81,7 @@ const Layout = ({ children }) => {
     e.preventDefault();
     
     if (!footerNewsletterEmail.trim()) {
-      toast.error('Por favor, ingresa tu email.');
+      addNotification('Por favor, ingresa tu email.', 'error');
       return;
     }
 
@@ -85,14 +91,14 @@ const Layout = ({ children }) => {
       const result = await sendNewsletterWelcome(footerNewsletterEmail, 'Nuevo suscriptor');
       
       if (result.success) {
-        toast.success('¡Te has suscrito exitosamente al newsletter!');
+        addNotification('¡Te has suscrito exitosamente al newsletter!', 'success');
         setFooterNewsletterEmail('');
       } else {
-        toast.error(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.');
+        addNotification(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.', 'error');
       }
     } catch (error) {
       console.error('Error al suscribirse al newsletter:', error);
-      toast.error('Error al suscribirse. Por favor, intenta de nuevo.');
+      addNotification('Error al suscribirse. Por favor, intenta de nuevo.', 'error');
     } finally {
       setFooterNewsletterLoading(false);
     }
@@ -188,9 +194,19 @@ const Layout = ({ children }) => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                  onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
+                  className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
                 >
                   <BellIcon className="h-6 w-6" />
+                  {unreadNotificationsCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                    >
+                      {unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount}
+                    </motion.span>
+                  )}
                 </motion.button>
               )}
 
@@ -495,6 +511,12 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </footer>
+
+      {/* Notification Panel */}
+      <NotificationPanel 
+        isOpen={isNotificationPanelOpen} 
+        onClose={() => setIsNotificationPanelOpen(false)} 
+      />
     </div>
   );
 };

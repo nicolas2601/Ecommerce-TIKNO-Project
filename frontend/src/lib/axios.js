@@ -1,5 +1,5 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast'; // Comentado para usar el sistema de notificaciones centralizado
 
 // Crear instancia de axios con configuración base
 const axiosInstance = axios.create({
@@ -62,13 +62,14 @@ axiosInstance.interceptors.response.use(
     }
 
     // Manejar otros errores
-    if (error.response?.status >= 500) {
-      toast.error('Error del servidor. Por favor, intenta más tarde.');
-    } else if (error.response?.status === 404) {
-      toast.error('Recurso no encontrado.');
-    } else if (error.response?.status === 403) {
-      toast.error('No tienes permisos para realizar esta acción.');
-    }
+    // Nota: Los errores ahora se manejan en los componentes individuales usando el sistema de notificaciones
+    // if (error.response?.status >= 500) {
+    //   toast.error('Error del servidor. Por favor, intenta más tarde.');
+    // } else if (error.response?.status === 404) {
+    //   toast.error('Recurso no encontrado.');
+    // } else if (error.response?.status === 403) {
+    //   toast.error('No tienes permisos para realizar esta acción.');
+    // }
 
     return Promise.reject(error);
   }

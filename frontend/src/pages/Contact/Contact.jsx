@@ -9,10 +9,11 @@ import {
   CheckCircleIcon,
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
-import { toast } from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 import { sendContactMessage } from '../../services/emailService';
 
 const Contact = () => {
+  const { addNotification } = useNotifications();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -36,7 +37,7 @@ const Contact = () => {
     
     // Validación básica
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      toast.error('Por favor, completa todos los campos obligatorios.');
+      addNotification('Por favor, completa todos los campos obligatorios.', 'error');
       return;
     }
 
@@ -47,7 +48,7 @@ const Contact = () => {
       
       if (result.success) {
         setIsSubmitted(true);
-        toast.success('¡Mensaje enviado correctamente! Te contactaremos pronto.');
+        addNotification('¡Mensaje enviado correctamente! Te contactaremos pronto.', 'success');
         
         // Resetear formulario
         setFormData({
@@ -58,11 +59,11 @@ const Contact = () => {
           message: ''
         });
       } else {
-        toast.error(`Error al enviar el mensaje: ${result.message}`);
+        addNotification(`Error al enviar el mensaje: ${result.message}`, 'error');
       }
     } catch (error) {
       console.error('Error al enviar formulario de contacto:', error);
-      toast.error('Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+      addNotification('Error al enviar el mensaje. Por favor, inténtalo de nuevo.', 'error');
     } finally {
       setIsSubmitting(false);
     }

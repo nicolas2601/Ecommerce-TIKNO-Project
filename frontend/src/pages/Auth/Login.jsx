@@ -10,7 +10,7 @@ import {
   ShoppingBagIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +22,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   
   const { login, isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -62,13 +63,13 @@ const Login = () => {
     try {
       setLoading(true);
       await login(formData.email, formData.password);
-      toast.success('¡Bienvenido de vuelta!');
+      addNotification('¡Bienvenido de vuelta!', 'success');
       navigate(from, { replace: true });
     } catch (error) {
       const errorMessage = error.response?.data?.detail || 
                           error.response?.data?.message || 
                           'Error al iniciar sesión';
-      toast.error(errorMessage);
+      addNotification(errorMessage, 'error');
       
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
@@ -92,10 +93,10 @@ const Login = () => {
     try {
       setLoading(true);
       await login('demo@tikno.com', 'demo123456');
-      toast.success('¡Sesión demo iniciada!');
+      addNotification('¡Sesión demo iniciada!', 'success');
       navigate(from, { replace: true });
     } catch (error) {
-      toast.error('Error al iniciar sesión demo');
+      addNotification('Error al iniciar sesión demo', 'error');
     } finally {
       setLoading(false);
     }

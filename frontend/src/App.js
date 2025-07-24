@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+// import { Toaster } from 'react-hot-toast'; // Comentado - ahora usamos el sistema de notificaciones personalizado
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
@@ -27,80 +28,83 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <Router>
-          <div className="App">
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-                success: {
-                  duration: 3000,
-                  theme: {
-                    primary: '#4ade80',
-                    secondary: '#000',
-                  },
-                },
-                error: {
-                  duration: 4000,
-                  theme: {
-                    primary: '#ef4444',
-                    secondary: '#000',
-                  },
-                },
-              }}
-            />
-            
-            <Routes>
-              {/* Rutas públicas con Layout */}
-              <Route path="/" element={<Layout><Home /></Layout>} />
-              <Route path="/products" element={<Layout><Products /></Layout>} />
-              <Route path="/products/:id" element={<Layout><ProductDetail /></Layout>} />
-              <Route path="/categories" element={<Layout><Categories /></Layout>} />
-              <Route path="/categories/:category" element={<Layout><Categories /></Layout>} />
-              <Route path="/contact" element={<Layout><Contact /></Layout>} />
-              <Route path="/cart" element={<Layout><Cart /></Layout>} />
-              <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
-              
-              {/* Rutas de autenticación sin Layout */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              
-              {/* Rutas protegidas con Layout */}
-              <Route 
-                path="/checkout" 
-                element={
-                  <ProtectedRoute>
-                    <Layout><Checkout /></Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Layout><Profile /></Layout>
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Rutas adicionales */}
-              <Route path="/search" element={<Layout><Products /></Layout>} />
-              
-              {/* Ruta 404 */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-          </Router>
-        </WishlistProvider>
-      </CartProvider>
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <Router>
+              <div className="App">
+                {/* Toaster comentado - ahora usamos el sistema de notificaciones personalizado */}
+                {/* <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
+                    },
+                    success: {
+                      duration: 3000,
+                      theme: {
+                        primary: '#4ade80',
+                        secondary: '#000',
+                      },
+                    },
+                    error: {
+                      duration: 4000,
+                      theme: {
+                        primary: '#ef4444',
+                        secondary: '#000',
+                      },
+                    },
+                  }}
+                /> */}
+                
+                <Routes>
+                  {/* Rutas públicas con Layout */}
+                  <Route path="/" element={<Layout><Home /></Layout>} />
+                  <Route path="/products" element={<Layout><Products /></Layout>} />
+                  <Route path="/products/:id" element={<Layout><ProductDetail /></Layout>} />
+                  <Route path="/categories" element={<Layout><Categories /></Layout>} />
+                  <Route path="/categories/:category" element={<Layout><Categories /></Layout>} />
+                  <Route path="/contact" element={<Layout><Contact /></Layout>} />
+                  <Route path="/cart" element={<Layout><Cart /></Layout>} />
+                  <Route path="/wishlist" element={<Layout><Wishlist /></Layout>} />
+                  
+                  {/* Rutas de autenticación sin Layout */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  {/* Rutas protegidas con Layout */}
+                  <Route 
+                    path="/checkout" 
+                    element={
+                      <ProtectedRoute>
+                        <Layout><Checkout /></Layout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <ProtectedRoute>
+                        <Layout><Profile /></Layout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  {/* Rutas adicionales */}
+                  <Route path="/search" element={<Layout><Products /></Layout>} />
+                  
+                  {/* Ruta 404 */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
+            </Router>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
+    </NotificationProvider>
   );
 }
 

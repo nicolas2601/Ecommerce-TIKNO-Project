@@ -16,7 +16,7 @@ import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 import { sendNewsletterWelcome } from '../../services/emailService';
 
 const Home = () => {
@@ -28,6 +28,7 @@ const Home = () => {
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const Home = () => {
       setCategories(categoriesRes.data.results || categoriesRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Error al cargar los datos');
+      addNotification('Error al cargar los datos', 'error');
     } finally {
       setLoading(false);
     }
@@ -57,7 +58,7 @@ const Home = () => {
 
   const toggleWishlist = (productId) => {
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar a favoritos');
+      addNotification('Debes iniciar sesión para agregar a favoritos', 'error');
       return;
     }
     
@@ -76,14 +77,14 @@ const Home = () => {
       const result = await sendNewsletterWelcome(newsletterEmail, 'Nuevo suscriptor');
       
       if (result.success) {
-        toast.success('¡Te has suscrito exitosamente al newsletter!');
+        addNotification('¡Te has suscrito exitosamente al newsletter!', 'success');
         setNewsletterEmail('');
       } else {
-        toast.error(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.');
+        addNotification(result.message || 'Error al suscribirse. Por favor, intenta de nuevo.', 'error');
       }
     } catch (error) {
       console.error('Error al suscribirse al newsletter:', error);
-      toast.error('Error al suscribirse. Por favor, intenta de nuevo.');
+      addNotification('Error al suscribirse. Por favor, intenta de nuevo.', 'error');
     } finally {
       setNewsletterLoading(false);
     }

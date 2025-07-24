@@ -1,9 +1,10 @@
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
+import { useNotifications } from '../contexts/NotificationContext'
 
 const Dashboard = () => {
+  const { addNotification } = useNotifications()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -11,14 +12,14 @@ const Dashboard = () => {
     try {
       const result = await logout()
       if (result.success) {
-        toast.success('Sesión cerrada exitosamente')
+        addNotification('Sesión cerrada exitosamente', 'success')
       } else {
-        toast.warning('Sesión cerrada localmente (error del servidor)')
+        addNotification('Sesión cerrada localmente (error del servidor)', 'warning')
       }
       navigate('/login')
     } catch (error) {
       console.error('Logout error:', error)
-      toast.error('Error al cerrar sesión')
+      addNotification('Error al cerrar sesión', 'error')
       navigate('/login')
     }
   }

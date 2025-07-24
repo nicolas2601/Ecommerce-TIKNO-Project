@@ -17,11 +17,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Checkout = () => {
   const { cartItems, cartTotal, applyCoupon, removeCoupon, couponDiscount, createOrder, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState(1);
@@ -198,16 +199,16 @@ const Checkout = () => {
 
   const handleCouponApply = async () => {
     if (!couponCode.trim()) {
-      toast.error('Ingresa un código de cupón');
+      addNotification('Ingresa un código de cupón', 'error');
       return;
     }
     
     try {
       await applyCoupon(couponCode);
-      toast.success('Cupón aplicado exitosamente');
+      addNotification('Cupón aplicado exitosamente', 'success');
       setCouponCode('');
     } catch (error) {
-      toast.error('Código de cupón inválido');
+      addNotification('Código de cupón inválido', 'error');
     }
   };
 
@@ -233,9 +234,9 @@ const Checkout = () => {
       setCurrentStep(4);
       clearCart();
       
-      toast.success('¡Pedido realizado exitosamente!');
+      addNotification('¡Pedido realizado exitosamente!', 'success');
     } catch (error) {
-      toast.error('Error al procesar el pedido');
+      addNotification('Error al procesar el pedido', 'error');
     } finally {
       setLoading(false);
     }

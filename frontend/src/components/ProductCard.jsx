@@ -11,7 +11,7 @@ import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const ProductCard = ({ 
   product, 
@@ -19,6 +19,7 @@ const ProductCard = ({
 }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { addNotification } = useNotifications();
   const { isAuthenticated } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
 

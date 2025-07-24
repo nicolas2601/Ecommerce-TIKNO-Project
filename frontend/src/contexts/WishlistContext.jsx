@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { useNotifications } from './NotificationContext';
 import { useAuth } from './AuthContext';
 
 const WishlistContext = createContext();
@@ -15,6 +15,7 @@ export const useWishlist = () => {
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const { isAuthenticated, user } = useAuth();
+  const { addNotification } = useNotifications();
 
   // Cargar wishlist desde localStorage al inicializar
   useEffect(() => {
@@ -42,28 +43,28 @@ export const WishlistProvider = ({ children }) => {
 
   const addToWishlist = (product) => {
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar productos a favoritos');
+      addNotification('Debes iniciar sesión para agregar productos a favoritos', 'error');
       return false;
     }
 
     if (isInWishlist(product.id)) {
-      toast.error('Este producto ya está en tu lista de favoritos');
+      addNotification('Este producto ya está en tu lista de favoritos', 'error');
       return false;
     }
 
     setWishlist(prev => [...prev, product]);
-    toast.success('Producto agregado a favoritos');
+    addNotification('Producto agregado a favoritos', 'success');
     return true;
   };
 
   const removeFromWishlist = (productId) => {
     setWishlist(prev => prev.filter(item => item.id !== productId));
-    toast.success('Producto eliminado de favoritos');
+    addNotification('Producto eliminado de favoritos', 'success');
   };
 
   const toggleWishlist = (product) => {
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar productos a favoritos');
+      addNotification('Debes iniciar sesión para agregar productos a favoritos', 'error');
       return false;
     }
 
@@ -81,7 +82,7 @@ export const WishlistProvider = ({ children }) => {
 
   const clearWishlist = () => {
     setWishlist([]);
-    toast.success('Lista de favoritos limpiada');
+    addNotification('Lista de favoritos limpiada', 'success');
   };
 
   const getWishlistCount = () => {

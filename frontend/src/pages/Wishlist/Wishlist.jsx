@@ -11,12 +11,13 @@ import { useWishlist } from '../../contexts/WishlistContext';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import ProductCard from '../../components/ProductCard';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Wishlist = () => {
   const { wishlist, clearWishlist, getWishlistCount } = useWishlist();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
 
   if (!isAuthenticated) {
@@ -72,9 +73,9 @@ const Wishlist = () => {
       for (const product of wishlist) {
         await addToCart(product, 1);
       }
-      toast.success(`${wishlist.length} productos agregados al carrito`);
+      addNotification(`${wishlist.length} productos agregados al carrito`, 'success');
     } catch (error) {
-      toast.error('Error al agregar productos al carrito');
+      addNotification('Error al agregar productos al carrito', 'error');
     }
   };
 

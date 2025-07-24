@@ -21,7 +21,7 @@ import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroico
 import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -40,6 +40,7 @@ const ProductDetail = () => {
   
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     if (id) {
@@ -65,7 +66,7 @@ const ProductDetail = () => {
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      toast.error('Error al cargar el producto');
+      addNotification('Error al cargar el producto', 'error');
       navigate('/products');
     } finally {
       setLoading(false);
@@ -94,11 +95,11 @@ const ProductDetail = () => {
 
   const toggleWishlist = () => {
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para agregar a favoritos');
+      addNotification('Debes iniciar sesión para agregar a favoritos', 'error');
       return;
     }
     setIsWishlisted(!isWishlisted);
-    toast.success(isWishlisted ? 'Eliminado de favoritos' : 'Agregado a favoritos');
+    addNotification(isWishlisted ? 'Eliminado de favoritos' : 'Agregado a favoritos', 'success');
   };
 
   const handleShare = async () => {
@@ -115,25 +116,25 @@ const ProductDetail = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Enlace copiado al portapapeles');
+      addNotification('Enlace copiado al portapapeles', 'success');
     }
   };
 
   const submitReview = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      toast.error('Debes iniciar sesión para escribir una reseña');
+      addNotification('Debes iniciar sesión para escribir una reseña', 'error');
       return;
     }
 
     try {
       await api.createProductReview(id, newReview);
-      toast.success('Reseña enviada exitosamente');
+      addNotification('Reseña enviada exitosamente', 'success');
       setNewReview({ rating: 5, comment: '' });
       setShowReviewForm(false);
       fetchReviews();
     } catch (error) {
-      toast.error('Error al enviar la reseña');
+      addNotification('Error al enviar la reseña', 'error');
     }
   };
 

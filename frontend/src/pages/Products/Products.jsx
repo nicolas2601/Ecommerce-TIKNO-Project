@@ -15,7 +15,7 @@ import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -32,6 +32,7 @@ const Products = () => {
   const [totalCount, setTotalCount] = useState(0);
   
   const { addToCart } = useCart();
+  const { addNotification } = useNotifications();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -79,7 +80,7 @@ const Products = () => {
       setTotalCount(response.data.count || response.data.length);
     } catch (error) {
       console.error('Error fetching products:', error);
-      toast.error('Error al cargar los productos');
+      addNotification('Error al cargar los productos', 'error');
     } finally {
       setLoading(false);
     }

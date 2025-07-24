@@ -16,7 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import ProductCard from '../../components/ProductCard';
 import Loading from '../../components/UI/Loading';
-import toast from 'react-hot-toast';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 const Categories = () => {
   const { category } = useParams();
@@ -29,6 +29,7 @@ const Categories = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const { wishlist } = useWishlist();
+  const { addNotification } = useNotifications();
 
   const sortOptions = [
     { value: 'name', label: 'Nombre A-Z' },
@@ -61,6 +62,7 @@ const Categories = () => {
       setCurrentCategory(current);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      addNotification('Error al cargar las categorías', 'error');
     }
   };
 
@@ -76,6 +78,7 @@ const Categories = () => {
       setProducts(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      addNotification('Error al cargar los productos', 'error');
     } finally {
       setLoading(false);
     }
