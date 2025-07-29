@@ -213,8 +213,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3002",
     # URLs de producción
     "https://ecommerce-tikno-project.onrender.com",
-    "https://ecommerce-tikno-frontend.vercel.app",
-    "https://ecommerce-tikno-n8hxqkkh7-nicolas2601s-projects.vercel.app",
+    "https://ecommerce-tiknowow.vercel.app",
+    "https://ecommerce-tiknowow-nicolas2601s-projects.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
