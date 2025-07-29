@@ -22,6 +22,7 @@ import { api } from '../../lib/axios';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { formatCurrency } from '../../utils/formatters';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -294,12 +295,12 @@ const ProductDetail = () => {
               {/* Price */}
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-4xl font-bold text-gray-900">
-                  ${product.price?.toLocaleString()}
+                  {formatCurrency(product.price)}
                 </span>
                 {product.original_price && product.original_price > product.price && (
                   <>
                     <span className="text-2xl text-gray-500 line-through">
-                      ${product.original_price.toLocaleString()}
+                      {formatCurrency(product.original_price)}
                     </span>
                     <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
                       -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
@@ -714,7 +715,7 @@ const ProductDetail = () => {
                     
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-gray-900">
-                        ${relatedProduct.price?.toLocaleString()}
+                        {formatCurrency(relatedProduct.price)}
                       </span>
                       
                       <div className="flex items-center">

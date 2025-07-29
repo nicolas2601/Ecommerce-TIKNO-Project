@@ -16,6 +16,7 @@ import {
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { formatCurrency } from '../../utils/formatters';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -272,12 +273,12 @@ const Cart = () => {
                           
                           <div className="flex items-center space-x-4 mt-3">
                             <span className="text-2xl font-bold text-gray-900">
-                              ${item.product.price?.toLocaleString()}
+                              {formatCurrency(item.product.price)}
                             </span>
                             
                             {item.product.original_price && item.product.original_price > item.product.price && (
                               <span className="text-lg text-gray-500 line-through">
-                                ${item.product.original_price.toLocaleString()}
+                                {formatCurrency(item.product.original_price)}
                               </span>
                             )}
                           </div>
@@ -320,10 +321,10 @@ const Cart = () => {
                           {/* Subtotal */}
                           <div className="text-right">
                             <p className="text-lg font-bold text-gray-900">
-                              ${(item.product.price * item.quantity).toLocaleString()}
+                              {formatCurrency(item.product.price * item.quantity)}
                             </p>
                             <p className="text-sm text-gray-500">
-                              {item.quantity} × ${item.product.price?.toLocaleString()}
+                              {item.quantity} × {formatCurrency(item.product.price)}
                             </p>
                           </div>
                           
@@ -416,19 +417,19 @@ const Cart = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>${cartSubtotal.toLocaleString()}</span>
+                    <span>{formatCurrency(cartSubtotal)}</span>
                   </div>
                   
                   {appliedCoupon && calculateDiscount() > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Descuento ({appliedCoupon.code})</span>
-                      <span>-${calculateDiscount().toLocaleString()}</span>
+                      <span>-{formatCurrency(calculateDiscount())}</span>
                     </div>
                   )}
                   
                   <div className="flex justify-between text-gray-600">
                     <span>Impuestos</span>
-                    <span>${cartTax.toLocaleString()}</span>
+                    <span>{formatCurrency(cartTax)}</span>
                   </div>
                   
                   <div className="flex justify-between text-gray-600">
@@ -437,7 +438,7 @@ const Cart = () => {
                       {calculateShipping() === 0 ? (
                         <span className="text-green-600 font-medium">Gratis</span>
                       ) : (
-                        `$${calculateShipping().toLocaleString()}`
+                        formatCurrency(calculateShipping())
                       )}
                     </span>
                   </div>
@@ -445,7 +446,7 @@ const Cart = () => {
                   <div className="border-t pt-3">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>
-                      <span>${finalTotal().toLocaleString()}</span>
+                      <span>{formatCurrency(finalTotal())}</span>
                     </div>
                   </div>
                 </div>
@@ -459,7 +460,7 @@ const Cart = () => {
                       <p className="text-blue-700 mt-1">
                         {cartSubtotal >= 50000 
                           ? 'Envío gratuito incluido'
-                          : `Agrega $${(50000 - cartSubtotal).toLocaleString()} más para envío gratuito`
+                          : `Agrega ${formatCurrency(50000 - cartSubtotal)} más para envío gratuito`
                         }
                       </p>
                     </div>

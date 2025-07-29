@@ -16,6 +16,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { formatCurrency } from '../../utils/formatters';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -489,11 +490,11 @@ const Products = () => {
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center space-x-2">
                               <span className="text-2xl font-bold text-gray-900">
-                                ${product.price?.toLocaleString()}
+                                {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price > product.price && (
                                 <span className="text-lg text-gray-500 line-through">
-                                  ${product.original_price.toLocaleString()}
+                                  {formatCurrency(product.original_price)}
                                 </span>
                               )}
                             </div>
@@ -569,11 +570,11 @@ const Products = () => {
                             {/* Price */}
                             <div className="flex items-center space-x-2">
                               <span className="text-2xl font-bold text-gray-900">
-                                ${product.price?.toLocaleString()}
+                                {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price > product.price && (
                                 <span className="text-lg text-gray-500 line-through">
-                                  ${product.original_price.toLocaleString()}
+                                  {formatCurrency(product.original_price)}
                                 </span>
                               )}
                             </div>

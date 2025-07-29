@@ -4,6 +4,7 @@ import { HeartIcon, ShoppingCartIcon, EyeIcon } from '@heroicons/react/24/outlin
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
+import { formatCurrency } from '../../utils/formatters';
 
 const Card = ({
   children,
@@ -194,11 +195,11 @@ export const ProductCard = ({
         {/* Price */}
         <div className="flex items-center space-x-2">
           <span className="text-lg font-bold text-gray-900">
-            ${price?.toFixed(2)}
+            {formatCurrency(price)}
           </span>
           {originalPrice && originalPrice > price && (
             <span className="text-sm text-gray-500 line-through">
-              ${originalPrice.toFixed(2)}
+              {formatCurrency(originalPrice)}
             </span>
           )}
         </div>

@@ -18,6 +18,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { sendNewsletterWelcome } from '../../services/emailService';
+import { formatCurrency } from '../../utils/formatters';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -392,11 +393,11 @@ const Home = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2">
                       <span className="text-2xl font-bold text-gray-900">
-                        ${product.price?.toLocaleString()}
+                        {formatCurrency(product.price)}
                       </span>
                       {product.original_price && product.original_price > product.price && (
                         <span className="text-lg text-gray-500 line-through">
-                          ${product.original_price.toLocaleString()}
+                          {formatCurrency(product.original_price)}
                         </span>
                       )}
                     </div>

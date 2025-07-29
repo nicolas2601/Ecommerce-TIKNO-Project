@@ -20,6 +20,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useCart } from '../../contexts/CartContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { formatCurrency } from '../../utils/formatters';
 
 const Profile = () => {
   const { user, updateUser, changePassword, loading } = useAuth();
@@ -195,7 +196,7 @@ const Profile = () => {
                 <div className="text-sm text-white/80">Reseñas</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">${stats.totalSpent.toLocaleString()}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats.totalSpent)}</div>
                 <div className="text-sm text-white/80">Total Gastado</div>
               </div>
             </div>
@@ -538,7 +539,7 @@ const Profile = () => {
                 </div>
                 <div className="text-right">
                   <div className="badge badge-success mb-2">Entregado</div>
-                  <p className="font-semibold text-gray-900">${(Math.random() * 500 + 100).toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900">{formatCurrency(Math.random() * 500 + 100)}</p>
                 </div>
               </div>
               
@@ -576,7 +577,7 @@ const Profile = () => {
               <h3 className="font-medium text-gray-900 mb-2">Producto Favorito {item}</h3>
               <p className="text-sm text-gray-600 mb-3">Descripción del producto...</p>
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-primary-600">${(Math.random() * 200 + 50).toFixed(2)}</span>
+                <span className="font-semibold text-primary-600">{formatCurrency(Math.random() * 200 + 50)}</span>
                 <div className="flex space-x-2">
                   <button className="btn-primary btn-sm">Añadir al Carrito</button>
                   <button className="btn-outline btn-sm">

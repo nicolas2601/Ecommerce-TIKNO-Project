@@ -18,6 +18,7 @@ import {
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { formatCurrency } from '../../utils/formatters';
 
 const Checkout = () => {
   const { cartItems, cartTotal, applyCoupon, removeCoupon, couponDiscount, createOrder, clearCart } = useCart();
@@ -561,7 +562,7 @@ const Checkout = () => {
                   
                   <div className="text-right">
                     <span className="font-semibold text-gray-900">
-                      ${method.price.toLocaleString()}
+                      {formatCurrency(method.price)}
                     </span>
                   </div>
                 </div>
@@ -852,7 +853,7 @@ const Checkout = () => {
                 <p className="text-sm text-gray-600">Cantidad: {item.quantity}</p>
               </div>
               <span className="text-sm font-medium text-gray-900">
-                ${(item.price * item.quantity).toLocaleString()}
+                {formatCurrency(item.price * item.quantity)}
               </span>
             </div>
           ))}
@@ -893,30 +894,30 @@ const Checkout = () => {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">Subtotal</span>
-            <span className="text-gray-900">${totals.subtotal.toLocaleString()}</span>
+            <span className="text-gray-900">{formatCurrency(totals.subtotal)}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-600">Envío</span>
-            <span className="text-gray-900">${totals.shipping.toLocaleString()}</span>
+            <span className="text-gray-900">{formatCurrency(totals.shipping)}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-600">IVA (19%)</span>
-            <span className="text-gray-900">${totals.tax.toLocaleString()}</span>
+            <span className="text-gray-900">{formatCurrency(totals.tax)}</span>
           </div>
           
           {totals.discount > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Descuento</span>
-              <span>-${totals.discount.toLocaleString()}</span>
+              <span>-{formatCurrency(totals.discount)}</span>
             </div>
           )}
           
           <div className="border-t pt-2">
             <div className="flex justify-between font-semibold text-lg">
               <span className="text-gray-900">Total</span>
-              <span className="text-gray-900">${totals.total.toLocaleString()}</span>
+              <span className="text-gray-900">{formatCurrency(totals.total)}</span>
             </div>
           </div>
         </div>
