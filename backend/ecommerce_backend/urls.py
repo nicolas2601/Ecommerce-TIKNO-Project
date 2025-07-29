@@ -18,12 +18,28 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+def api_root(request):
+    return JsonResponse({
+        'message': 'Bienvenido a la API de Ecommerce Tikno',
+        'version': '1.0',
+        'endpoints': {
+            'admin': '/admin/',
+            'auth': '/api/auth/',
+            'products': '/api/products/',
+            'orders': '/api/orders/',
+            'token': '/api/token/',
+            'token_refresh': '/api/token/refresh/'
+        }
+    })
+
 urlpatterns = [
+    path('', api_root, name='api_root'),
     path('admin/', admin.site.urls),
     
     # API URLs
@@ -31,7 +47,7 @@ urlpatterns = [
     path('api/', include('products.urls')),
     path('api/', include('orders.urls')),
     
-    # JWT Token URLs
+    # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
