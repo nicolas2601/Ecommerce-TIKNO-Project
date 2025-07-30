@@ -74,7 +74,7 @@ def validate_image_file(file):
     allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if hasattr(file, 'content_type'):
         if file.content_type not in allowed_types:
-            raise ValidationError(f'Tipo de archivo no permitido. Tipos permitidos: {', '.join(allowed_types)}')
+            raise ValidationError(f'Tipo de archivo no permitido. Tipos permitidos: {", ".join(allowed_types)}')
     
     # Validar que sea una imagen válida usando PIL
     try:
