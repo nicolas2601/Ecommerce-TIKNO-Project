@@ -3,7 +3,7 @@ services:
     name: ecommerce-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn ecommerce_backend.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: gunicorn ecommerce_backend.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.16
