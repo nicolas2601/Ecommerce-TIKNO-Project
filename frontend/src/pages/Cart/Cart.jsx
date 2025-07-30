@@ -39,16 +39,16 @@ const Cart = () => {
 
   const handleQuantityChange = async (item, newQuantity) => {
     if (newQuantity < 1) {
-      await removeFromCart(item.product.id);
+      await removeFromCart(item.id);
     } else if (newQuantity <= item.product.stock) {
-      await updateCartItem(item.product.id, newQuantity);
+      await updateCartItem(item.id, newQuantity);
     } else {
       addNotification(`Solo hay ${item.product.stock} unidades disponibles`, 'error');
     }
   };
 
-  const handleRemoveItem = async (productId) => {
-    await removeFromCart(productId);
+  const handleRemoveItem = async (itemId) => {
+    await removeFromCart(itemId);
   };
 
   const handleClearCart = () => {
@@ -108,34 +108,20 @@ const Cart = () => {
     return Math.max(0, cartSubtotal - discount + cartTax + shipping);
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!isAuthenticated) {
       addNotification('Debes iniciar sesión para continuar', 'error');
       navigate('/login', { state: { from: '/cart' } });
       return;
     }
 
-    try {
-      setProcessingOrder(true);
-      const orderData = {
-        items: cartItems.map(item => ({
-          product_id: item.product.id,
-          quantity: item.quantity,
-          price: item.product.price
-        })),
-        coupon_code: appliedCoupon?.code,
-        shipping_address: 'Default address', // This would come from user profile
-        payment_method: 'pending' // This would be set in checkout process
-      };
-      
-      const order = await createOrder(orderData);
-      addNotification('Orden creada exitosamente', 'success');
-      navigate(`/checkout/${order.id}`);
-    } catch (error) {
-      addNotification('Error al crear la orden', 'error');
-    } finally {
-      setProcessingOrder(false);
+    if (cartItems.length === 0) {
+      addNotification('Tu carrito está vacío', 'error');
+      return;
     }
+
+    // Redirigir a la página de confirmación de pedido
+    navigate('/order-confirmation');
   };
 
   const containerVariants = {
@@ -343,7 +329,7 @@ const Cart = () => {
                           
                           {/* Remove Button */}
                           <motion.button
-                            onClick={() => handleRemoveItem(item.product.id)}
+                            onClick={() => handleRemoveItem(item.id)}
                             className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}

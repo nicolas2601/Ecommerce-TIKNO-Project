@@ -1,0 +1,40 @@
+.order-status-wrapper {
+  display: inline-block;
+}
+
+.order-status-badge {
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.order-status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animación para estados activos */
+.order-status-badge.processing {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .order-status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .order-status-badge svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}

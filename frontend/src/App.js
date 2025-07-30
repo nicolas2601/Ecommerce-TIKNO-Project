@@ -17,6 +17,8 @@ import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Profile from './pages/Profile/Profile';
+import Orders from './pages/Orders/Orders';
+import OrderConfirmation from './components/OrderConfirmation';
 import './styles/globals.css';
 
 // Componente de ruta protegida
@@ -89,6 +91,22 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Layout><Profile /></Layout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/orders" 
+                    element={
+                      <ProtectedRoute>
+                        <Layout><Orders /></Layout>
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/order-confirmation" 
+                    element={
+                      <ProtectedRoute>
+                        <Layout><OrderConfirmation /></Layout>
                       </ProtectedRoute>
                     } 
                   />

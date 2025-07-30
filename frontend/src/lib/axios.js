@@ -135,6 +135,10 @@ export const api = {
     return axiosInstance.get('/orders/orders/');
   },
   
+  getOrder: (id) => {
+    return axiosInstance.get(`/orders/orders/${id}/`);
+  },
+  
   createOrder: (orderData) => {
     return axiosInstance.post('/orders/orders/', orderData);
   },

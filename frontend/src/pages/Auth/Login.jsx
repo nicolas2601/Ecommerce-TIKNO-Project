@@ -248,21 +248,6 @@ const Login = () => {
                 'Iniciar Sesión'
               )}
             </motion.button>
-
-            {/* Demo Login */}
-            <motion.button
-              type="button"
-              onClick={demoLogin}
-              disabled={loading}
-              className="w-full btn-outline py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              whileHover={{ scale: loading ? 1 : 1.02 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <UserIcon className="h-5 w-5" />
-                <span>Probar con cuenta demo</span>
-              </div>
-            </motion.button>
           </form>
 
           {/* Divider */}
