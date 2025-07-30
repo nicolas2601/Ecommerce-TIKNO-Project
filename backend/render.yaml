@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ecommerce-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn ecommerce_backend.wsgi:application --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
+      - key: DEBUG
+        value: False
